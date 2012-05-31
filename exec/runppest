@@ -1,0 +1,200 @@
+#!/usr/bin/env Rscript
+#================================================================================
+# File:        runppest    
+# Created:     2012-03-05
+# Last Change: Wednesday, 2012-05-16
+# Description: Program to start `pest` with a master and slave
+# Argument:       
+# TODO:        Remove trailing "/" in directory-names
+# Value:       
+# Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
+# Institution: TK Consult AG
+# Copyright:   GNU General Public Licence 
+#================================================================================
+procCli <- 
+    function       # Process command-line arguments of runppest
+(
+    args    # command-line arguments
+)
+{
+    require('getopt', quietly = TRUE)
+    opt_spec <- 
+        matrix(c(
+                 'help',     'h', 0, "logical",     
+                    "Getting help",
+                 'print-conf-tmpl',   'p', 0, "logical",
+                    "Print a configuration template",
+                 'config',   'f', 1, "character",
+                     'Spcify a configuration file'
+                 ), ncol = 5, byrow = TRUE)
+    opt <- getopt(spec = opt_spec, opt = args)
+    if ( !is.null(opt$help) || is.null(commandArgs()) )   {    
+        cat(getopt(spec = opt_spec, usage = TRUE, command = "runppest"))
+        q(status=0)
+    }
+    # print  configuration template
+    if ( !is.null(opt[['print-conf-tmpl']]) )    {
+        cat(paste(readLines(system.file("config-templates/runppest-conf.yaml", 
+                                        package = "basement")), collapse = "\n"))
+        q(status = 0)
+    }
+    opt            # alist with command-line options
+}
+checkForDir <- 
+    function       # Check if directory specified in configuration
+(
+    host            # computer-name 
+   ,dir = "run-dir" # directory-name to check
+   ,cnf             # alist-configuration
+)
+{
+    if ( !is.na(cnf[[host]][dir]) ) {  
+        value <- cnf[[host]][[dir]]
+    } else {
+        value <- NA
+    }
+    value          # NULL or diretory in configuration
+    # Return `NA` if not specified, otherwise the directory
+}
+expandHostCnf <-
+    function
+(
+    hosts          # hosts
+                   ### either a character-vector listing hosts as character or
+                   ### an asscociation-list (alist) with configuration
+   ,defaults       # alist with default-values
+)
+{
+    host.names <- 
+    {
+        if ( identical(class(hosts), "character") ) {
+            hosts
+        } else {
+            names(hosts)
+        }
+    }
+    cnf <-       # default slave configuration
+        t(sapply(host.names,
+                 function(x){
+                     sapply(names(defaults), function(y){ defaults[[y]] })
+                 }
+         ))
+    if ( identical(class(hosts), "list")) {  
+        exit_st <-  # just called for its side-effect of assigning to parent.env
+            sapply(host.names, 
+               function(x){
+                   sapply(names(hosts[[x]]),
+                          function(y){
+                              cnf[x, y] <<- hosts[[x]][[y]]
+                          }
+                   )
+               invisible(NULL)
+               }
+         )
+    }
+   cnf         # data-frame with slave-configuration
+}
+genScreenString <- 
+    function   # Generate a `screen` file for the master
+(
+    pest_file       # filename of pest-file
+   ,slave.df        # data-frame with slave configuration: name, run_dir, threads, pcmd
+   ,last_run =      # last-run-switch on master
+        FALSE        
+   ,port =          # port to communicate 
+        4004         
+   ,master.name     # name of master host
+   ,master.pcmd =   # name of pest-command
+        ppest
+)
+{
+    master_cmd <-     # ppest command
+        paste(master.pcmd, " ../", pest_file, " /H ", 
+              ifelse(last_run, "/L", ""), " :", 
+              port,  sep = "" )
+    thread_enum <- sapply(as.numeric(slave.df[,"threads"]), function(.x) paste( seq(1,.x), collapse = " "))
+    run_pest_cmd <- 
+        paste("{ for dir in ", thread_enum, "; do ",
+              "mkdir -p $dir; cd $dir; ", slave.df[,"pcmd"], " ../", pest_file, " /H ", 
+              master.name, ":", port, "& cd ..; done }", sep = "")
+    slave_cmd <- 
+        paste("cd" ,slave.df[,"run_dir"], "&&" ,run_pest_cmd)
+
+    slave_ssh_cmd <- 
+        paste( "ssh ", slave.df[,"name"], " \'", slave_cmd, "\'", sep = "")
+
+    paste(c('escape ^Oo',
+            paste('screen -t "master" 0', master_cmd)
+            ,paste('screen -t "', slave.df[,"name"], '" ', 
+                   seq(along = slave.df[,"name"]), " ", 
+                   slave_ssh_cmd, sep = "", collapse = "\n")   
+            ), collapse = "\n", "\n")
+}
+#opt <- list(config = "~/Projekte/Sihl1d/calibration/runs/hw_2005_mit_hwsp/.rpp-conf.yaml")
+# Read command-line arguments
+opt <- procCli(commandArgs(TRUE))
+require('yaml', quietly = TRUE)
+
+# Process configuration
+## Read data in
+cnf <-             
+    yaml.load_file(opt$config)
+## TODO: Validity checks: give a master-host and at least one slave
+
+cnf.slaves <-      # slave configuration
+    expandHostCnf(hosts = cnf[["slave-hosts"]]
+                 ,defaults = c(cnf[["default-host-config"]], 
+                               list(threads = cnf[["default-slave-threads"]]))
+                   )
+cnf.master <-      # master configuration
+    expandHostCnf(hosts = cnf[["master-host"]]
+                 ,defaults = cnf[["default-host-config"]] 
+    )
+
+localhost <-       # systems hostname
+    system('hostname', intern = TRUE)
+
+
+# Update or initialize git repository
+## master
+
+basement::updateGitRep(path = cnf.master[localhost, "project-dir"], 
+             url = cnf[["git-rep"]])
+## slaves
+sapply(rownames(cnf.slaves),
+       function(x){
+           upd_cmd <- paste('Rscript -e "basement::updateGitRep(', "\\\"", 
+                            cnf.slaves[x,"project-dir"], "\\\"", "," ,
+                             "\\\"", cnf[["git-rep"]],"\\\"",')"', sep = "")
+           ssh_cmd <- paste("ssh ", x, " \'", upd_cmd, "\'", sep = "")
+           system(ssh_cmd)
+       }
+)
+# Create directories
+setwd(paste(cnf.master[1,"project-dir"], cnf.master[1,"run-dir"], sep = "/")) 
+dir.create("master", showWarnings = FALSE)
+setwd("master")
+# Generate screen-file
+screen_string <- 
+    genScreenString(
+                     pest_file = cnf[["pest-file"]]
+                    ,last_run = cnf[["last-run-master"]]
+                    ,port = cnf[["port"]]
+                    ,slave.df = 
+                        data.frame( name = rownames(cnf.slaves)
+                                   ,run_dir = paste(cnf.slaves[,"project-dir"], 
+                                                 cnf.slaves[,"run-dir"], sep = "/")
+                                   ,threads = cnf.slaves[,"threads"]
+                                   ,pcmd = cnf.slaves[,"ppest-cmd"]
+                                   ,stringsAsFactors = FALSE
+                                   )
+                    ,master.name = rownames(cnf.master)
+                    ,master.pcmd = as.character(cnf.master[,"ppest-cmd"])
+                    )
+tmp_file <- tempfile(pattern = ppest-conf)
+cat(screen_string, file = tmp_file)
+system(paste("screen -c", tmp_file))
+file.remove(tmp_file)
+q(status = 0)
+# End of File ===================================================================
+# vim: set ft=r:

@@ -142,6 +142,7 @@ q(status = 0)
 # Programs generates the follwing files
 #     * pest-control-file (.pst)
 #     * pest-instruction-files (.ins) for each given marks and hydrograph-file
+#     * run shell script
 
 # End of File ===================================================================
 # vim: set ft=r:
