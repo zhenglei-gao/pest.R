@@ -1,0 +1,148 @@
+#!/usr/bin/env Rscript
+
+# Program to generate input files for pest 
+### while working on a BaseChain-Model.  You have to provide a configuration
+### file and define some parameters in a  .tpl-file.
+
+
+# Process command line options and arguments
+require('basement', quietly = TRUE)
+require('pest', quietly = TRUE)
+opt <- genPestInput.cli(commandArgs(TRUE))
+#--------------------------------------------------------------------------------
+#setwd("~/Projekte/Sihl1d/calibration/runs/hw_2005/")    # Development & Debugging
+#opt <- list(config = ".gpi-conf.yaml")
+#--------------------------------------------------------------------------------
+
+require('yaml', quietly = TRUE)
+cnf.yaml <- yaml.load_file(opt$config)
+data(data.genpestinput_cnf, package = "basement")
+cnf <-             # configuration with normalized names ; 
+    ### look names up under `data.genpestinput_cnf`
+    normalizeCnfNames(cnf = cnf.yaml
+                     ,tt  = data.genpestinput_cnf
+    )
+
+# Read and generate observation data
+#===================================
+
+obs.marks.summary <- 
+     if (!is.null(cnf$mf)) { summarizeObs(cnf$mf, "mark")} else {NULL} 
+obs.hydg.summary <-  
+     if (!is.null(cnf$hnms)) { summarizeObs(cnf$hnms, "hydrograph")} else {NULL} 
+
+obs.summary <-     # summary of observations
+    rbind(obs.marks.summary, obs.hydg.summary)
+
+obs.df.list <-     # list with observations
+    genPstObsDf(obs.summary)
+
+obs.df <-          # observations with names, values and type
+    Reduce(rbind, obs.df.list, data.frame())
+
+# Generate instruction file
+#===========================
+
+# Produce strings
+#-----------------
+ins.string <-         # instruction strings per given file
+    lapply(obs.df.list, function(x) 
+           genInsString(names = as.character(x$names), type  = levels(x$type)) )
+
+# Write ins-files
+#-----------------
+exts <-            # exit-status-dummy; nothing useful returned
+    lapply(names(ins.string), 
+       function(x) {
+           ofile <- as.character(obs.summary$files[obs.summary$ids == x])
+           cat(paste(ins.string[[x]], "\n", sep = ""),
+               file = paste(sub("\\..*", "",basename(ofile)), 
+                            "-resid.ins", sep = ""))
+       }
+    )
+
+# Generate pest-file
+#====================
+# Process Parameters
+#--------------------
+
+pars.list <- list()     # parameter name-initial-value
+pars.list$names <- getTplArgs(cnf$ptpl, cnf$pesc)
+pars.list$values <- 
+{ 
+    if ( length(cnf$pini) == 1 ) {  
+        rep(cnf$pini, length(pars.list$names))
+    } else if ( length(cnf$pini) != length(pars.list$names) ) {  
+        warning("initial parameter-values",
+                " and given parameters differ in length; \n",
+                " taking just first one: ", cnf$pini[1]) 
+        cnf$pini[1]
+        rep(cnf$pini, length(pars.list$names))
+    } else {
+    cnf$pini
+    }
+}
+pars.lines <-     # strings of "parameter-data" in pest-template
+    genParString(as.data.frame(pars.list), bounds = cnf$pbound )
+
+# Process observations
+#----------------------
+
+obs.lines <-      # strings of "observation-data" in pest-template
+    genObsString(as.data.frame(obs.df))
+
+# Model input-output 
+#---------------------
+mio.lines <-       # model-input-output lines
+    c(paste(cnf$ptpl, cnf$pmi)
+      ,as.character(sapply(c(unlist(cnf$m),unlist(cnf$hnms)), 
+              function(x){
+                  x <-  # model output-files without suffix
+                      sub("\\.[a-zA-Z]+$", "-resid", basename(x))
+                  paste(x, c(".ins", ".dat"), sep = "", collapse = " ")
+              }
+       ))
+    )
+
+
+# Replace parameters in pest-template file
+#------------------------------------------
+
+pst.repl.list <- # Named list pest-par and  replacement string
+    list(                  
+         npar    = length(pars.lines)
+        ,nobs    = length(obs.lines)
+        ,ntpl    = length(cnf$ptpl)
+        ,nins    = length(cnf$hnms) + length(cnf$mf)
+        ,pardata = paste(pars.lines, collapse = "\n")
+        ,obsdata = paste(obs.lines, collapse = "\n")
+        ,runsh   = paste(ifelse(cnf$ppest, '../', ''), 'run', sep = "")
+        ,mio     = paste(paste(mio.lines, collapse = "\n"), "\n", sep = "")
+    )
+
+pst.tmpl <-           # read pest-template
+    readLines(system.file("config-templates", "pest.pst", package = "basement"))
+
+pst.string <- 
+    subParsInTmpl(repls = pst.repl.list
+           ,tmpl  = pst.tmpl
+    )
+cat(pst.string, file = paste(cnf$case, ".pst", sep = ""))
+
+# Generate a run-shell-file 
+system(paste("sed '/CASE/s/__case__/'", cnf$case, '<',
+             system.file("config-templates"
+                    , paste('run-ppest', cnf$type, sep = "-")
+                    , package = "basement")
+          , '> run', sep = "")
+)
+system('chmod +x run')
+
+q(status = 0)
+# Programs generates the follwing files
+#     * pest-control-file (.pst)
+#     * pest-instruction-files (.ins) for each given marks and hydrograph-file
+
+# End of File ===================================================================
+# vim: set ft=r:
+
