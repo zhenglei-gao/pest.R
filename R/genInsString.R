@@ -9,5 +9,9 @@ genInsString <-
     functions <- 
         list(
           'basmnt' = genBsmntInsString
+         ,'sitra' = genSitraInsString
         )
+    if ( ! prog %in% names(functions)) 
+        stop('Currently there is only `bsmnt` and `sitra` supported for `prog`')
+    functions[[prog]](names, type)
 }

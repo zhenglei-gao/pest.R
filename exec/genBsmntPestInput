@@ -108,25 +108,10 @@ mio.lines <-       # model-input-output lines
 # Replace parameters in pest-template file
 #------------------------------------------
 
-pst.repl.list <- # Named list pest-par and  replacement string
-    list(                  
-         npar    = length(pars.lines)
-        ,nobs    = length(obs.lines)
-        ,ntpl    = length(cnf$ptpl)
-        ,nins    = length(cnf$hnms) + length(cnf$mf)
-        ,pardata = paste(pars.lines, collapse = "\n")
-        ,obsdata = paste(obs.lines, collapse = "\n")
-        ,runsh   = paste(ifelse(cnf$ppest, '../', ''), 'run', sep = "")
-        ,mio     = paste(paste(mio.lines, collapse = "\n"), "\n", sep = "")
-    )
-
-pst.tmpl <-           # read pest-template
-    readLines(system.file("config-templates", "pest.pst", package = "basement"))
 
 pst.string <- 
-    subParsInTmpl(repls = pst.repl.list
-           ,tmpl  = pst.tmpl
-    )
+    replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
+                       , 1, length(cnf$hnms) + length(cnf$mf), 'sh run') 
 cat(pst.string, file = paste(cnf$case, ".pst", sep = ""))
 
 # Generate a run-shell-file 

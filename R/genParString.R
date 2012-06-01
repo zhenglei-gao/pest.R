@@ -10,8 +10,8 @@ genParString <-
 {
     apply(x, 1,    # String with parameter-data line
           function(e) {
-              paste(tolower(e[1]),"   log   factor    ",e[2],
-                    "     ", bounds[1],"     ",    bounds[2], "    fr   1.0     0.0     1")
+              sprintf("%-15s   log   factor    %15s  %15s  %15s    fr   1.0   0.0"
+                    , tolower(e[1]), e[2],  bounds[1], bounds[2])
           }
     )
     ### Returns a string of a line with parameter-data

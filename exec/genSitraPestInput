@@ -1,0 +1,97 @@
+#!/usr/bin/env Rscript
+#================================================================================
+# File:        genSitraPestInput    
+# Created:     2012-05-31
+# Last Change: Friday, 2012-06-01
+# Description: Generate input-files for `pest`-parameter-estimation
+# Argument:    sitra-`biv`-file
+# Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
+# Institution: TK Consult AG
+# Copyright:   GNU General Public Licence 
+#================================================================================
+args <- commandArgs(TRUE)
+if ( length(args) != 1 ) 
+{  
+    stop('Please give sitra-`.biv`-file as argument! \n Usage: \n genSitraPestInput <file.biv>')
+} else if ( !file.exists(args[1]) ) 
+{  
+    stop("Couldn't find given input-file: ", args[1], "!")
+}
+#setwd('~/tmp/ohneriv/')
+#args <- 'inv.biv'
+
+cnf <- read.table(args[1], stringsAsFactor = FALSE)
+
+require('pest', quietly = TRUE)
+
+# Get observations
+#==================
+obs.df <- readSitraObs(cnf[2,1])
+obs.list <- with(obs.df, split(obs.df, obs_point))
+
+# Generate pest-instruction-files
+#=================================
+exit_st <-         # not used any further
+lapply(obs.list, function(x) 
+{
+    cat(genSitraInsString(paste(tolower(x[,1]), x[,2], sep = "")) 
+      , file = paste(x[1,1], 'ins', sep = ".")
+    ) 
+    invisible()
+}
+)
+
+# Transform parameter-file into a tpl-file
+#==========================================
+pars.file <- cnf[3,1]
+pars.df.all <- readSitraPars(pars.file)
+
+ppi <-         # indices of parameters to estimate
+    which(pars.df.all$fixed == 0)
+pars.df <- pars.df.all[ppi,]
+writeSitraTpl(pars.df.all, i = ppi,  file = sub('csv$', 'tpl', pars.file))
+
+# Generate pest-control-file
+#============================
+
+# Process Parameters
+#--------------------
+
+pars.list <- list(names = pars.df$name, values = pars.df$init)
+
+pars.lines <-     # strings of "parameter-data" in pest-template
+    genParString(as.data.frame(pars.list), bounds = c(1e-20, 1) )
+
+# Process observations
+#----------------------
+
+obs.lines <-      # strings of "observation-data" in pest-template
+    genObsString(as.data.frame(list(names = paste(tolower(obs.df[,1]), obs.df[,2], sep = "")
+                         ,  wses = obs.df[,3], type = rep('hydrograph', nrow(obs.df)))
+                         , stringsAsFactors = FALSE)
+               , weight = 1/obs.df[,4]
+    )
+
+# Model input-output 
+#---------------------
+mio.lines <-       # model-input-output lines
+    c(paste(paste(sub("csv$", "tpl", pars.file), sep = "")
+          , pars.file)
+      ,as.character(sapply(names(obs.list), function(x)
+              paste(x, ".ins  ", x, ".csv", sep = "") 
+       ))
+    )
+
+
+# Replace parameters in pest-template file
+#------------------------------------------
+pst.string <- 
+    replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
+                       , 1, length(obs.list), 'Sitra.exe -return') 
+
+cat(pst.string, file = sub("biv$", "pst", args[1]))
+
+q(status = 0)
+
+# End of File ===================================================================
+# vim: set ft=r:
