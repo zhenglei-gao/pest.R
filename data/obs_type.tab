@@ -1,0 +1,3 @@
+type        read_fun        pre_str     name_sub              name_repl     ins_pre_line    group
+mark        read.table      *name*      ""                    ""            'l1 w w'        hwsp
+hydrograph  read.chrono     *time*      '(-|:|[[:space:]]+)'  ""            'l1 *;* *;*'    hydg
