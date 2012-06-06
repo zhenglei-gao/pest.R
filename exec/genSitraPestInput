@@ -2,7 +2,7 @@
 #================================================================================
 # File:        genSitraPestInput    
 # Created:     2012-05-31
-# Last Change: Friday, 2012-06-01
+# Last Change: Wednesday, 2012-06-06
 # Description: Generate input-files for `pest`-parameter-estimation
 # Argument:    sitra-`biv`-file
 # Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
@@ -74,12 +74,14 @@ obs.lines <-      # strings of "observation-data" in pest-template
 
 # Model input-output 
 #---------------------
+fmt_string <- "%-15s%-15s"
 mio.lines <-       # model-input-output lines
-    c(paste(paste(sub("csv$", "tpl", pars.file), sep = "")
-          , pars.file)
-      ,as.character(sapply(names(obs.list), function(x)
-              paste(x, ".ins  ", x, ".csv", sep = "") 
-       ))
+    c(sprintf(fmt_string, sub("csv$", "tpl", pars.file),  pars.file)
+      ,sapply(names(obs.list), function(x)
+              sprintf(fmt_string
+                    , paste(x, ".ins", sep = "")
+                    , paste(x, ".csv", sep = "")) 
+       )
     )
 
 
