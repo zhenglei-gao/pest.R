@@ -104,7 +104,7 @@ pst.string <-
     replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
                        , 1, length(obs.list), 'Sitra.exe -return') 
 
-cat(pst.string, file = sub("biv$", "pst", bsi.file))
+cat(pst.string, file = sub("biv$", "pst", bsi.conf$biv))
 
 q(status = 0)
 
