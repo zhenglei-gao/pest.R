@@ -10,23 +10,36 @@
 # Copyright:   GNU General Public Licence 
 #================================================================================
 args <- commandArgs(TRUE)
-if ( length(args) != 1 ) 
+if ( length(args) == 0 ) 
 {  
-    stop('Please give sitra-`.biv`-file as argument! \n Usage: \n genSitraPestInput <file.biv>')
-} else if ( !file.exists(args[1]) ) 
+    bsi.file <- 'sitra.bsi'
+} else if (  length(args) == 1) 
+{ 
+    bsi.file <- args[1]
+} else 
 {  
-    stop("Couldn't find given input-file: ", args[1], "!")
+    stop('Please give sitra-`.bsi`-file as argument! \n Usage: \n genSitraPestInput [<file.bsi>]')
+} 
+if ( !file.exists(bsi.file) ) 
+{  
+    stop("Couldn't find the given .bsi-file: ", args[1], "!\n",
+         "Usage: \n genSitraPestInput [<file.bsi>]")
 }
-#setwd('~/tmp/ohneriv/')
-#args <- 'inv.biv'
 
-cnf <- read.table(args[1], stringsAsFactor = FALSE)
+#setwd('~/tmp/ohneriv/')
+#bsi.file <- 'sitra.bsi'
 
 require('pest', quietly = TRUE)
 
+bsi.conf <- getBsiContents(bsi.file)
+
+cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)
+
+
 # Get observations
 #==================
-obs.df <- readSitraObs(cnf[2,1])
+obs.df.all <- readSitraObs(cnf[2,1])
+obs.df <- obs.df.all[obs.df.all$difftime < bsi.conf$run_time, ]
 obs.list <- with(obs.df, split(obs.df, obs_point))
 
 # Generate pest-instruction-files
@@ -91,7 +104,7 @@ pst.string <-
     replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
                        , 1, length(obs.list), 'Sitra.exe -return') 
 
-cat(pst.string, file = sub("biv$", "pst", args[1]))
+cat(pst.string, file = sub("biv$", "pst", bsi.file))
 
 q(status = 0)
 

@@ -30,16 +30,8 @@ readSitraObs <-
        {
            point.lines.in <- strsplit(x, "\n")[[1]]
            point.lines <- point.lines.in[point.lines.in != ""]
-           point.name <- 
-           {
-               if ( length(grep(" +", point.lines[1])) > 0 ) 
-               {  
-                   pn <- unlist(strsplit(point.lines[1], " +"))
-                   pn[length(pn)]
-               } else {
-                   point.lines[1]
-               }
-           }
+           point.name <- point.lines[1]
+
            Reduce(
               rbind,
               lapply(point.lines[-c(1,2)], function(r)
