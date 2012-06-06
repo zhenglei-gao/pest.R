@@ -1,0 +1,66 @@
+#!/usr/bin/env Rscript
+#================================================================================
+# File:        runSitraPpest    
+# Created:     2012-06-06
+# Last Change: Wednesday, 2012-06-06
+# Description: runs sitra in parallel on (different hosts)
+# Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
+# Institution: TK Consult AG
+# Copyright:   GNU General Public Licence 
+#================================================================================
+genScreenString <- 
+    function
+(
+    file           # pest-file to use
+    nthread        # number of threads to use
+)
+{
+    esc <- 'escape ^Oo'
+    master <- paste('screen -t "master" 0')
+}
+require('getopt', quietly = TRUE)
+opt_spec <- matrix(c(
+                'help',     'h', 0, "logical",     "Getting help"
+              , 'single-host', 's', 1, "numeric", "Number of threads to use" 
+              , 'file', 'f', "character", "Specify a pest-file"
+                ), ncol = 5, byrow = TRUE)
+opt <- getopt(spec = opt_spec)
+if ( !is.null(opt$help) || length(commandArgs()) == 0 )   {    
+    cat(getopt(spec = opt_spec, usage = TRUE, command = "runSitraPpest"))
+    q(status=0)
+} else if ( !is.null(opt$file) ) 
+{  
+    pest_file <- opt$config
+} else
+{
+    pest_file <- 
+    {
+        pst_files <- list.files(pattern = "*\\.pst")
+        if ( length(pst_files) =! 1 ) 
+        {  
+            stop('There are no or more 1 `.pst` files in the current directory\n', 
+                 "Please specifiy one with \n runSitraPpest -f <file.pst> -s <#threads>")
+        } else
+        {
+            pst_files
+        }
+    }
+}
+# Create directories
+exit_status <-     # nothing returned; just called for copying and dir-creation
+    lapply(c('master', seq_along(opt[['single-host']])), function(x)
+           {
+               dir.create(x, showWarnings = FALSE) 
+               system('cp *', x)
+           }
+    )
+
+
+# Create screen-config-string
+screen_string <- 
+    genScreenString(pst_file, opt[['single-host']])
+
+# Start screen as multiplexer
+system(paste('screen -c', tmpfile))
+# End of File ===================================================================
+# vim: set ft=r:

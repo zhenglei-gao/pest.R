@@ -2,7 +2,7 @@
 #================================================================================
 # File:        runppest    
 # Created:     2012-03-05
-# Last Change: Wednesday, 2012-05-16
+# Last Change: Wednesday, 2012-06-06
 # Description: Program to start `pest` with a master and slave
 # Argument:       
 # TODO:        Remove trailing "/" in directory-names
@@ -23,6 +23,8 @@ procCli <-
                  'help',     'h', 0, "logical",     
                     "Getting help",
                  'print-conf-tmpl',   'p', 0, "logical",
+                    "Print a configuration template",
+                 'single-host', 's', 1, "numeric",
                     "Print a configuration template",
                  'config',   'f', 1, "character",
                      'Spcify a configuration file'
