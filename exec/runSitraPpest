@@ -41,7 +41,7 @@ require('getopt', quietly = TRUE)
 opt_spec <- 
     matrix(c(
         'help',     'h', 0, "logical",     "Getting help"
-        'quiet',    'q', 0, "logical",     "Run quietly"
+      , 'quiet',    'q', 0, "logical",     "Run quietly"
       , 'single-host', 's', 1, "numeric", "Number of threads to use" 
       , 'file', 'f', '1', "character", "Specify a pest-file"
       , 'port', 'p', '1', "character", "Port to communicate over"
