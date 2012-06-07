@@ -82,7 +82,8 @@ if ( !is.null(opt$file) )
 if ( is.null(opt$quiet) ) 
     message('* Generating pest-input-files')
 
-system('genSitraPestInput')
+gspi <- system('genSitraPestInput', intern = TRUE)
+if ( gspi != 0 ) { stop('Generation of pest-input-files failed')  }
 
 if ( is.null(opt$quiet) ) 
     message('* Copying files to diffent directories')
@@ -106,7 +107,8 @@ cat(screen_string, file = tmpfile)
 
 if ( is.null(opt$quiet) ) 
     message('* Starting Screen and ppest')
-system(paste('screen -c', tmpfile))
+screen.exit <- system(paste('screen -c', tmpfile))
+if ( screen.exit != 0 ) { stop('Parallel-pest-execution failed!')  }
 
 if ( is.null(opt$quiet) ) 
     message('* Deleting directories')
