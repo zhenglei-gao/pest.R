@@ -25,11 +25,11 @@ genScreenString <-
     pre <- 'escape ^Oo'
     master.string <- 
         paste('screen -t "master" 0'
-            , ' bash "cd master; ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
+            , ' bash -c "cd master; ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
             ,  sep = '')
     slave.strings <- 
         sapply(seq_len(nthread), function(i)
-            paste('screen -t "thread', i,'" ', i, ' bash "cd ', i, '; '
+            paste('screen -t "thread', i,'" ', i, ' bash -c "cd ', i, '; '
                 , ppest_cmds[[os]], ' ', file, ' /H localhost:', port, '"'
                 , sep = '')
         )
@@ -91,8 +91,7 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
     lapply(c('master', seq_along(opt[['single-host']])), function(x)
            {
                dir.create(x, showWarnings = FALSE) 
-               system(paste('cp *', x)
-                      , ignore.stdout = TRUE, ignore.stderr = TRUE)
+               system(paste('cp *', x))
            }
     )
 
@@ -121,8 +120,8 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
     )
 
 message('* The calibration went successfully; look into \n'
-      ,'\t-', sub('pst', 'rec', pest_file), 'for the log-file\n'
-      ,'\t-', sub('pst', 'par', pest_file), 'for the final parameters\n'
+      ,'\t- ', sub('pst', 'rec', pest_file), ' for the log-file\n'
+      ,'\t- ', sub('pst', 'par', pest_file), ' for the final parameters\n'
       #,'*','pdfs are generated to compare simulation vs observation'
       )
 # End of File ===================================================================
