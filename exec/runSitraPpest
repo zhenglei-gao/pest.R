@@ -42,8 +42,8 @@ opt_spec <-
     matrix(c(
         'help',     'h', 0, "logical",     "Getting help"
       , 'single-host', 's', 1, "numeric", "Number of threads to use" 
-      , 'file', 'f', "character", "Specify a pest-file"
-      , 'port', 'p', "character", "Port to communicate over"
+      , 'file', 'f', '1', "character", "Specify a pest-file"
+      , 'port', 'p', '1', "character", "Port to communicate over"
     ), ncol = 5, byrow = TRUE)
 
 opt <- getopt(spec = opt_spec)
@@ -60,7 +60,7 @@ if ( !is.null(opt$file) )
     pest_file <- 
     {
         pst_files <- list.files(pattern = "*\\.pst")
-        if ( length(pst_files) =! 1 ) 
+        if ( length(pst_files) != 1 ) 
         {  
             stop('There are no or more 1 `.pst` files in the current directory\n', 
                  "Please specifiy one with \n runSitraPpest -f <file.pst> -s <#threads>")
