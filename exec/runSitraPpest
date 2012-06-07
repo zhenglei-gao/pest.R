@@ -20,7 +20,7 @@ genScreenString <-
 {
     ppest_cmds <-
         list(
-          'windows' = "beopest64"
+          'windows' = "beopest64.exe"
         , 'unix' = 'ppest')
     pre <- 'escape ^Oo'
     master.string <- 
@@ -120,9 +120,9 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
            }
     )
 
-message('The calibration went successfully; look into \n'
-      ,'*', sub('pst', 'rec', pest_file), 'for the log-file\n'
-      ,'*', sub('pst', 'par', pest_file), 'for the final parameters\n'
+message('* The calibration went successfully; look into \n'
+      ,'\t-', sub('pst', 'rec', pest_file), 'for the log-file\n'
+      ,'\t-', sub('pst', 'par', pest_file), 'for the final parameters\n'
       #,'*','pdfs are generated to compare simulation vs observation'
       )
 # End of File ===================================================================
