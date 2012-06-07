@@ -75,6 +75,8 @@ if ( !is.null(opt$file) )
 #opt <- list('single-host' = 2
 #           ,'port' = 4004)
 
+system('genSitraPestInput')
+
 # Create directories
 exit_status <-     # nothing returned; just called for copying and dir-creation
     lapply(c('master', seq_along(opt[['single-host']])), function(x)
@@ -88,7 +90,7 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
 
 # Create screen-config-string
 screen_string <- 
-    genScreenString(pst_file, opt[['single-host']], opt$port, os = 'unix')
+    genScreenString(pst_file, opt[['single-host']], opt$port)
 
 tmpfile <- tempfile()
 cat(screen_string, file = tmpfile)
@@ -96,7 +98,7 @@ cat(screen_string, file = tmpfile)
 
 system(paste('screen -c', tmpfile))
 
-system('cp master/* .')
+system('mv master/* .')
 
 exit_status <-     # nothing returned; just called for copying and dir-creation
     lapply(c('master', seq_along(opt[['single-host']])), function(x)
@@ -108,7 +110,7 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
 message('The calibration went successfully; look into \n'
       ,'*',sub('pst', 'rec', pest_file), 'for the log-file\n'
       ,'*',sub('pst', 'par', pest_file), 'for the final parameters\n'
-      ,'*','pdfs are generated to compare simulation vs observation'
+      #,'*','pdfs are generated to compare simulation vs observation'
       ,'*' 'the parameter-file'
       )
 # End of File ===================================================================
