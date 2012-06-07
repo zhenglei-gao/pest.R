@@ -25,11 +25,11 @@ genScreenString <-
     pre <- 'escape ^Oo'
     master.string <- 
         paste('screen -t "master" 0'
-            , ' bash -c "cd master; ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
+            , ' bash -c "cd master && ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
             ,  sep = '')
     slave.strings <- 
         sapply(seq_len(nthread), function(i)
-            paste('screen -t "thread', i,'" ', i, ' bash -c "cd ', i, '; '
+            paste('screen -t "thread', i,'" ', i, ' bash -c "cd ', i, '&& '
                 , ppest_cmds[[os]], ' ', file, ' /H localhost:', port, '"'
                 , sep = '')
         )
@@ -89,7 +89,7 @@ if ( is.null(opt$quiet) )
     message('* Copying files to diffent directories')
 # Create directories
 exit_status <-     # nothing returned; just called for copying and dir-creation
-    lapply(c('master', seq_along(opt[['single-host']])), function(x)
+    lapply(c('master', seq_len(opt[['single-host']])), function(x)
            {
                dir.create(x, showWarnings = FALSE) 
                system(paste('cp *', x))
@@ -115,7 +115,7 @@ if ( is.null(opt$quiet) )
 system('mv master/* .')
 
 exit_status <-     # nothing returned; just called for copying and dir-creation
-    lapply(c('master', seq_along(opt[['single-host']])), function(x)
+    lapply(c('master', seq_len(opt[['single-host']])), function(x)
            {
                system(paste('rm -r', x))
            }
