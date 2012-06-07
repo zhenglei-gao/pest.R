@@ -24,12 +24,12 @@ genScreenString <-
         , 'unix' = 'ppest')
     pre <- 'escape ^Oo'
     master.string <- 
-        paste('screen -t "master" 0 '
-            , '"cd master; ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
+        paste('screen -t "master" 0'
+            , ' bash "cd master; ', ppest_cmds[[os]], ' ', file, ' /H /L :', port, '"'
             ,  sep = '')
     slave.strings <- 
         sapply(seq_len(nthread), function(i)
-            paste('screen -t "thread', i,'" ', i, ' "cd ', i, '; '
+            paste('screen -t "thread', i,'" ', i, ' bash "cd ', i, '; '
                 , ppest_cmds[[os]], ' ', file, ' /H localhost:', port, '"'
                 , sep = '')
         )
@@ -53,6 +53,10 @@ if ( !is.null(opt$help) || length(commandArgs()) == 0 )   {
     q(status=0)
 } 
 if ( is.null(opt$port) ) { opt$port <- 4004  }
+if ( is.null(opt[['single-host']]) ) 
+{  
+    stop('Currently only single-host runs supported.\nUsage:\nrunSitrPpest -s <#thread>')
+}
 if ( !is.null(opt$file) ) 
 {  
     pest_file <- opt$file
@@ -75,11 +79,13 @@ if ( !is.null(opt$file) )
 #pest_file <- 'inv.pst'
 #opt <- list('single-host' = 2
 #           ,'port' = 4004)
-if ( !is.null(opt$quiet) ) 
+if ( is.null(opt$quiet) ) 
     message('* Generating pest-input-files')
 
 system('genSitraPestInput')
 
+if ( is.null(opt$quiet) ) 
+    message('* Copying files to diffent directories')
 # Create directories
 exit_status <-     # nothing returned; just called for copying and dir-creation
     lapply(c('master', seq_along(opt[['single-host']])), function(x)
@@ -99,8 +105,12 @@ tmpfile <- tempfile()
 cat(screen_string, file = tmpfile)
 # Start screen as multiplexer
 
+if ( is.null(opt$quiet) ) 
+    message('* Starting Screen and ppest')
 system(paste('screen -c', tmpfile))
 
+if ( is.null(opt$quiet) ) 
+    message('* Deleting directories')
 system('mv master/* .')
 
 exit_status <-     # nothing returned; just called for copying and dir-creation
@@ -111,10 +121,9 @@ exit_status <-     # nothing returned; just called for copying and dir-creation
     )
 
 message('The calibration went successfully; look into \n'
-      ,'*',sub('pst', 'rec', pest_file), 'for the log-file\n'
-      ,'*',sub('pst', 'par', pest_file), 'for the final parameters\n'
+      ,'*', sub('pst', 'rec', pest_file), 'for the log-file\n'
+      ,'*', sub('pst', 'par', pest_file), 'for the final parameters\n'
       #,'*','pdfs are generated to compare simulation vs observation'
-      ,'*' 'the parameter-file'
       )
 # End of File ===================================================================
 # vim: set ft=r:
