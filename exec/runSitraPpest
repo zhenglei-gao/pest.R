@@ -82,7 +82,7 @@ if ( !is.null(opt$file) )
 if ( is.null(opt$quiet) ) 
     message('* Generating pest-input-files')
 
-gspi <- system('genSitraPestInput', intern = TRUE)
+gspi <- system('genSitraPestInput')
 if ( gspi != 0 ) { stop('Generation of pest-input-files failed')  }
 
 if ( is.null(opt$quiet) ) 
