@@ -1,0 +1,133 @@
+#!/usr/bin/env Rscript
+#================================================================================
+# File:        plotObsVsSim
+# Created:     2012-01-24
+# Last Change: Tuesday, 2012-05-15
+# Description: Program to plot BaseChain-Simulation Results versus observations
+# Argument:    see plotObsVsSim --help  
+# Value:       plot figures in current directory
+# Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
+# Institution: TK Consult AG
+# Copyright:   GNU General Public Licence 
+#================================================================================
+require("optparse", quietly = TRUE)
+option_list <- 
+    list(make_option(c("-t", "--type"), type = "character", default="hydrograph",
+                     help="Type of input could be {marks,hydrograph} [default %default]")
+         )
+parser <- OptionParser(usage = " [-t|--type {marks,hydrograph}] file", option_list=option_list)
+arguments <- parse_args(parser, positional_arguments = TRUE)
+opt <- arguments$options
+
+if(length(arguments$args) != 1) {
+    cat("Incorrect number of required positional arguments\n\n")
+    print_help(parser)
+    stop()
+} else {
+    arg <- arguments$args
+}
+
+if( file.access(arg) == -1) {
+    stop(sprintf("Specified file ( %s ) does not exist", arg))
+} 
+
+# Development & Debugging, don't forget to uncomment afterwards!
+#--------------------------------------------------------------------------------
+#setwd("~/Projekte/Sihl1d/calibration/runs/hw_1999")
+#opt <- list(
+#           type    = "hydrograph"
+#            )
+#arg <- "blattwag_res.dat"
+#--------------------------------------------------------------------------------
+name <- sub("\\..*", "", arg)
+if ( opt$type == "hydrograph" ) {  
+    require("basechain", quietly = TRUE)
+    require('basement', quietly = TRUE)
+    require("lattice", quietly = TRUE)
+    in_data <- read.chrono(arg)
+    form <- as.formula(paste(paste(names(in_data)[-1], collapse = " + "), 
+                              " ~ ", names(in_data)[1]))
+    pdf(file = paste(name, ".pdf", sep = ""), 
+        paper = "a4r", width = 12, height = 8)
+    print(xyplot(form, data = in_data, type = "b", 
+           auto.key = list( points = TRUE, lines = TRUE),
+           xlab = "Time", ylab = "Water surface elvation",
+           main = paste(basename(name), 
+                        ";   Date:  ", as.character(in_data[1,1])),
+           panel = function(...) panel.xyplot(..., grid = TRUE)
+           ))
+    dev.off()
+    q(status=0)
+} else if ( opt$type == "marks" ) {  
+    marks_df <- read.table(arg, header = TRUE)
+    resids <- marks_df[,3] - marks_df[,2]
+    pdf(file = paste(name, ".pdf", sep = ""), 
+        paper = "a4r", width = 12, height = 8)
+    barplot(resids, names.arg = marks_df[,1], 
+            main =  "Residuals",
+            cex.names = 0.7, las = 2)
+    dev.off()
+    q(status=0)
+} else {
+    stop("Input-type not recognized in option -t/--type allowed values: {marks,hydrograph} !")
+}
+
+#--------------------------------------------------------------------------------
+# Process hydrographs
+#--------------------------------------------------------------------------------
+hydrograph_points_df <- points_df[points_df[,4] ==  HYDRO_TYP_NAME ,]
+if ( nrow(hydrograph_points_df == 0) ) {   # If no hydrograph specified, do nothing!
+    invisible(NULL)
+} else {
+    # Read observations in
+    hydrograph_obs_df <- read.table(opt$hydro, header = TRUE)
+    hydrographs <- names(hydrograph_obs_df[-1])
+
+    # Read simulation results in
+    sims_list <- 
+        lapply(hydrographs, 
+           function(x){
+                sim_df <- read.table(list.files(path = opt$run_dir, 
+                                                pattern = x, full.names = TRUE))
+                sim_df[,1] <- sim_df[,1]
+                return(sim_df)
+           }
+    )
+    names(sims_list) <- hydrographs
+
+    if ( !is.null(opt$time) ) {        # shift according to given time-stamp
+    } else {                           # shift according peak
+        obs_peaks_ind <- apply(hydrograph_obs_df, 2, 
+                               function(x) which(x == max(x)))[-1]
+        sim_peaks_ind <- sapply(sims_list, 
+                                function(x) which(x[,2] == max(x[,2])))
+        sapply(hydrographs, 
+               function(x){
+                   time_lag <- `-`(hydrograph_obs_df[obs_peaks_ind[x],1],
+                                   sims_list[[x]][sim_peaks_ind[x],1])
+                   sims_list[[x]][,1] <<- sims_list[[x]][,1] + time_lag
+               }
+               )
+    }
+    # Plot hydrographs
+    pdf(file = paste(opt$out_dir, PDF_HYD_NAME, sep = "/"), 
+        width = 12, height = 8, paper = "a4r")
+    par(mfrow = c(1,2))
+    sapply(hydrographs, 
+           function(x){
+               return(invisible(NULL))
+           }
+    )
+    dev.off()
+}
+
+#--------------------------------------------------------------------------------
+# Processing flood marks
+#--------------------------------------------------------------------------------
+if ( nrow(marks_points_df == 0) ) {  
+    q(status=0)
+} else {
+    q(status=0)
+}
+# End of File ===================================================================
+# vim: set ft=r:
