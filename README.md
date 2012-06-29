@@ -15,4 +15,4 @@ The package ships some executables, which facilitate the generation of `PEST`-in
 
 # Usage
 
-Look into the [wiki](inst/wiki/Home.md) for more information
+Look into the wiki for more information!
