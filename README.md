@@ -1,7 +1,3 @@
-% pest --  R package to generate input-files for `PEST` 
-% Michel Kuhlmann, <michel@kuhlmanns.info>
-% June 2012 
-
 # Description
 
 The package ships some executables, which facilitate the generation of `PEST`-input-files for `sitra` and `basement`.
@@ -19,4 +15,4 @@ The package ships some executables, which facilitate the generation of `PEST`-in
 
 # Usage
 
-Look into the `github`-wiki
+Look into the [wiki](inst/wiki/Home) for more information
