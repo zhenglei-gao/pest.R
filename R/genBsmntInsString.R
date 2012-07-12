@@ -7,11 +7,11 @@ genBsmntInsString  <-
 {
     INSPRE <- "pif *" # first line in instruction-files 
 
-    data(obs_type)
+    data(bsmnt_obs_type)
     sapply(c("pre_str", "ins_pre_line"), # assign constants according to type
            function(x){
-               ti <-  which(obs_type$type == type) # type index 
-               assign(x, as.character(obs_type[ti, x])
+               ti <-  which(bsmnt_obs_type$type == type) # type index 
+               assign(x, as.character(bsmnt_obs_type[ti, x])
                     , pos = parent.env(environment()) )
                invisible(NULL)
            }

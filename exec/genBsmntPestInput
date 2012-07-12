@@ -10,7 +10,7 @@ require('basement', quietly = TRUE)
 require('pest', quietly = TRUE)
 opt <- genPestInput.cli(commandArgs(TRUE))
 #--------------------------------------------------------------------------------
-#setwd("~/Projekte/Sihl1d/calibration/runs/hw_2005/")    # Development & Debugging
+#setwd("~/Projekte/Sihl1d/calibration/runs/hw_2005_hq/")    # Development & Debugging
 #opt <- list(config = ".gpi-conf.yaml")
 #--------------------------------------------------------------------------------
 
@@ -107,15 +107,13 @@ mio.lines <-       # model-input-output lines
 
 # Replace parameters in pest-template file
 #------------------------------------------
-
-
 pst.string <- 
     replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
                        , 1, length(cnf$hnms) + length(cnf$mf), 'sh run') 
 cat(pst.string, file = paste(cnf$case, ".pst", sep = ""))
 
 # Generate a run-shell-file 
-system(paste("sed '/CASE/s/__case__/'", cnf$case, '<',
+system(paste("sed '/CASE/s/__case__/", cnf$case, "/' <",
              system.file("config-templates"
                     , paste('run-ppest', cnf$type, sep = "-")
                     , package = "basement")

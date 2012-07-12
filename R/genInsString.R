@@ -8,7 +8,7 @@ genInsString <-
 {
     functions <- 
         list(
-          'basmnt' = genBsmntInsString
+          'bsmnt' = genBsmntInsString
          ,'sitra' = genSitraInsString
         )
     if ( ! prog %in% names(functions)) 

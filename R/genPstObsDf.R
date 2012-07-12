@@ -9,17 +9,17 @@ genPstObsDf <-
                    ### type  -> factor    : levels are "mark" or "hydrograph"
 )
 {
-    data(obs_type)
+    data(bsmnt_obs_type)
     obs.list <- 
         apply(x, 1, 
                function(e){
                    # Assign read according to type, see `obs_type`
-                   read_fun <- as.character(obs_type$read_fun[obs_type$type == e[3]])
+                   read_fun <- as.character(bsmnt_obs_type$read_fun[bsmnt_obs_type$type == e[3]])
                    read <-  eval(parse(text = read_fun))
                    # Read data in
                    d <- read(e[1], header = TRUE)
                    # Generate uniqute names
-                   sub_pat <-  as.character(obs_type$name_sub[obs_type$type == e[3]])
+                   sub_pat <-  as.character(bsmnt_obs_type$name_sub[bsmnt_obs_type$type == e[3]])
                    odf        <- list()
                    odf$names  <- pasteObsName(d[,1], e[2], sub_pat)
                    odf$values <- d[,2]
