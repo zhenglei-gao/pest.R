@@ -2,7 +2,7 @@
 #================================================================================
 # File:        plotObsVsSim
 # Created:     2012-01-24
-# Last Change: Tuesday, 2012-05-15
+# Last Change: Thursday, 2012-07-12
 # Description: Program to plot BaseChain-Simulation Results versus observations
 # Argument:    see plotObsVsSim --help  
 # Value:       plot figures in current directory
@@ -51,7 +51,7 @@ if ( opt$type == "hydrograph" ) {
         paper = "a4r", width = 12, height = 8)
     print(xyplot(form, data = in_data, type = "b", 
            auto.key = list( points = TRUE, lines = TRUE),
-           xlab = "Time", ylab = "Water surface elvation",
+           xlab = "Time", ylab = "Water surface elevation",
            main = paste(basename(name), 
                         ";   Date:  ", as.character(in_data[1,1])),
            panel = function(...) panel.xyplot(..., grid = TRUE)
@@ -119,15 +119,8 @@ if ( nrow(hydrograph_points_df == 0) ) {   # If no hydrograph specified, do noth
            }
     )
     dev.off()
+    q(status = 0)
 }
 
-#--------------------------------------------------------------------------------
-# Processing flood marks
-#--------------------------------------------------------------------------------
-if ( nrow(marks_points_df == 0) ) {  
-    q(status=0)
-} else {
-    q(status=0)
-}
 # End of File ===================================================================
 # vim: set ft=r:
