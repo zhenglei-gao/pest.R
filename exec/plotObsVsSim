@@ -2,7 +2,7 @@
 #================================================================================
 # File:        plotObsVsSim
 # Created:     2012-01-24
-# Last Change: Thursday, 2012-07-12
+# Last Change: Tuesday, 2012-08-28
 # Description: Program to plot BaseChain-Simulation Results versus observations
 # Argument:    see plotObsVsSim --help  
 # Value:       plot figures in current directory
@@ -31,32 +31,12 @@ if( file.access(arg) == -1) {
     stop(sprintf("Specified file ( %s ) does not exist", arg))
 } 
 
-# Development & Debugging, don't forget to uncomment afterwards!
-#--------------------------------------------------------------------------------
-#setwd("~/Projekte/Sihl1d/calibration/runs/hw_1999")
-#opt <- list(
-#           type    = "hydrograph"
-#            )
-#arg <- "blattwag_res.dat"
-#--------------------------------------------------------------------------------
 name <- sub("\\..*", "", arg)
 if ( opt$type == "hydrograph" ) {  
-    require("basechain", quietly = TRUE)
     require('basement', quietly = TRUE)
-    require("lattice", quietly = TRUE)
     in_data <- read.chrono(arg)
-    form <- as.formula(paste(paste(names(in_data)[-1], collapse = " + "), 
-                              " ~ ", names(in_data)[1]))
-    pdf(file = paste(name, ".pdf", sep = ""), 
-        paper = "a4r", width = 12, height = 8)
-    print(xyplot(form, data = in_data, type = "b", 
-           auto.key = list( points = TRUE, lines = TRUE),
-           xlab = "Time", ylab = "Water surface elevation",
-           main = paste(basename(name), 
-                        ";   Date:  ", as.character(in_data[1,1])),
-           panel = function(...) panel.xyplot(..., grid = TRUE)
-           ))
-    dev.off()
+    p <- plotObsVsSim(in_data)
+    ggsave(paste(name, ".pdf", sep = ""), p)
     q(status=0)
 } else if ( opt$type == "marks" ) {  
     marks_df <- read.table(arg, header = TRUE)
