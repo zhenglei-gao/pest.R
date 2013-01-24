@@ -1,7 +1,7 @@
 pcf
 * control data
 norestart estimation
-$npar$ $nobs$ 1 0 2
+$npar$ $nobs$ 1 0 $nobsgp$
 $ntpl$ $nins$ single point 1 0 0
 5.0 2.0 0.4 0.03 10
 3.0 3.0 1.0e-3
@@ -13,8 +13,7 @@ fr  relative 0.001  0.00001     switch  2.0 parabolic
 * parameter data
 $pardata$
 * observation groups
-hwsp
-hydg
+$obsgp$
 * observation data
 $obsdata$
 * model command line

@@ -4,86 +4,69 @@ readSitraObs <-
     file           # sitra-observation-file
 )
 {
+  readPointData <-
+    function(x, skip, pname, ptype)
+      {
+        d <- 
+          read.table(text = x, skip = skip 
+                     , stringsAsFactor = F
+                     , col.names = c('Date', 'Ele', 'Q'))
+        d.tu <- 
+          transform(d, Date = round(as.numeric(procTu(Date))))
+        with(d.tu,
+             data.frame(Name = pname
+                        , Date = Date
+                        , Ele = Ele
+                        , Q = Q
+                        , Type = ptype))
+      }
+  procPointWithNodes <-
+    function(x, pname, ptype)
+      {
+        s <- 
+          scan(text = x, what = "character", nlines = 2, quiet = TRUE)
+        nele <- as.numeric(s[length(s)])
+        nds <- scan(text = x, skip = 2, nmax = nele, quiet = TRUE)
+        n <- grep(nds[length(nds)], strsplit(x, "\n")[[1]]) 
+        readPointData(x, skip = n+1, pname, ptype)
+      }
+  proc_tu_function <-  # functions how to process time-units
+    list(
+      'BEZUGSDATUM' =  function(d)
+      {
+        asDate <- function(st) 
+          as.POSIXct(strptime(st, format = "%d.%m.%Y"))
+        difftime(asDate(d), asDate(time_unit_line[2])) 
+      }
+      ,'ZEITEINHEIT' =  function(d)
+      d
+      )
     obs.lines <- readLines(file) 
     time_unit_line <- unlist(strsplit(obs.lines[6], " +"))
 
-    proc_tu_function <-  # functions how to process time-units
-        list(
-           'BEZUGSDATUM' =  function(d)
-           {
-               asDate <- function(st) 
-                   as.POSIXct(strptime(st, format = "%d.%m.%Y"))
-               difftime(asDate(d), asDate(time_unit_line[2])) 
-           }
-          ,'ZEITEINHEIT' =  function(d)
-              d
-        )
 
     procTu <- proc_tu_function[[time_unit_line[1]]]
 
     obs.string <- paste(obs.lines[-seq(1,6)], collapse = "\n")
     obs.points <- strsplit(obs.string, "\n\\s*\n")[[1]][-1]
-    obs.df <- 
-    Reduce(
-       rbind, 
-       lapply(obs.points, function(x)
-       {
-         readPointData <-
-           function(x, skip)
-             {
-               d <- 
-                 read.table(text = x, skip = skip 
-                            , stringsAsFactor = F
-                            , col.names = c('Date', 'Ele', 'Q'))
-               d.tu <- 
-                 transform(d, Date = round(as.numeric(procTu(Date))))
-               with(d.tu, data.frame(Name = pname, Date = Date, Ele = Ele, Q = Q))
-             }
-         procPointWithNodes <-
-           function(x)
-             {
-                 s <- 
-                   scan(text = x, what = "character", nlines = 2, quiet = TRUE)
-                 nele <- as.numeric(s[length(s)])
-                 nds <- scan(text = x, skip = 2, nmax = nele, quiet = TRUE)
-                 n <- grep(nds[length(nds)], strsplit(x, "\n")[[1]]) 
-                 readPointData(x, skip = n+1)
-             }
-           header <-  # point-type
-             scan(text = x,  what = "character", nlines = 1, quiet = T)
-           ptype = header[1]
-           pname <- header[2]
-           readFuns <-
-             switch( 
+  do.call(
+    rbind, 
+    lapply(obs.points, function(x)
+           {
+             header <-  # point-type
+               scan(text = x,  what = "character", nlines = 1, quiet = T)
+             ptype =
+               header[1]
+             pname <-
+               header[2]
+             switch(
                ptype
-              ,"POTE" =
-               {
-                 readPointData(x, skip = 2)
-               }
-              ,"KNOT" =
-               {
-                 procPointWithNodes(x)
-               }
-              ,"LKNO" =
-               {
-                 procPointWithNodes(x)
-               }
-             , stop('Keyword ', ptype, ' not defined in .obs-file')
+               ,"POTE" = readPointData(x, skip = 2, pname, ptype)
+               ,"KNOT" = procPointWithNodes(x, pname, ptype)
+               ,"LKNO" = procPointWithNodes(x, pname, ptype)
+               , stop('Keyword ', ptype, ' not defined in .obs-file')
                )
-       }
-       )
-     , data.frame()
-   )
-    # Convert Factors to numeric
-    out.df <- 
-        data.frame(cbind(obs.df[,1]
-                       , data.frame(matrix(as.numeric(as.matrix(obs.df[,-1])),
-                              , ncol = 3
-                         ))
-                   )
-        )
-    names(out.df) <- c('obs_point', 'difftime', 'wse', 'sd')
-    out.df
-    ### Returns a data-frame with columns: date, waterlevel and
-    ### standard-deviation
+           }
+           )
+    ) # ^ Returns a data-frame with columns: date, waterlevel, standard-deviation and type
 }

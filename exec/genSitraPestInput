@@ -34,16 +34,16 @@ cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)
 # Get observations
 #==================
 obs.df.all <- readSitraObs(cnf[2,1])
-obs.df <- obs.df.all[obs.df.all$difftime < bsi.conf$run_time, ]
-obs.list <- with(obs.df, split(obs.df, obs_point))
-
+obs.df <- obs.df.all[obs.df.all$Date < bsi.conf$run_time, ]
+obs.df <- cbind(Id = genObsNames(obs.df[,1],obs.df[,2]), obs.df)
+obs.list <- with(obs.df, split(obs.df, Name))
 # Generate pest-instruction-files
 #=================================
 exit_st <-         # not used any further
 lapply(obs.list, function(x) 
 {
-    cat(genSitraInsString(paste(tolower(x[,1]), x[,2], sep = "")) 
-      , file = paste(x[1,1], 'ins', sep = ".")
+    cat(genSitraInsString(x[,1]) 
+      , file = paste(x[2,1], 'ins', sep = ".")
     ) 
     invisible()
 }
@@ -72,20 +72,21 @@ pars.lines <-     # strings of "parameter-data" in pest-template
 
 # Process observations
 #----------------------
-
 obs.lines <-      # strings of "observation-data" in pest-template
-    genObsString(
+    genSitraObsString(
        as.data.frame(
          list(
-            names = paste(tolower(obs.df[,1]), obs.df[,2], sep = "")
-           ,wses = obs.df[,3], type = rep('hydrograph', nrow(obs.df)))
-           ,stringsAsFactors = FALSE)
-           ,weight = 1/obs.df[,4]
+            names = obs.df[,1] 
+           ,wses = obs.df[,4]
+           ,weight = 1/obs.df[,5]
+           ,type = tolower(obs.df[,6]))
+           ,stringsAsFactors = FALSE
+         )
     )
 
 # Model input-output 
 #---------------------
-fmt_string <- "%-15s%-15s"
+fmt_string <- "%-15s %-15s"
 mio.lines <-       # model-input-output lines
     c(sprintf(fmt_string, sub("csv$", "tpl", pars.file),  pars.file)
       ,sapply(names(obs.list), function(x)
@@ -99,8 +100,15 @@ mio.lines <-       # model-input-output lines
 # Replace parameters in pest-template file
 #------------------------------------------
 pst.string <- 
-    replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
-                       , 1, length(obs.list), 'Sitra.exe -return') 
+    replaceParsInPstTmpl(
+      pars.lines
+    , obs.lines
+    , mio.lines 
+    , 1
+    , length(obs.list)
+    , 'Sitra.exe -return'
+    , tolower(levels(obs.df$Type))
+) 
 
 cat(pst.string, file = sub("biv$", "pst", bsi.conf$biv))
 
