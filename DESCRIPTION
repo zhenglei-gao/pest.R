@@ -5,7 +5,7 @@ Version: 0.01
 Date: 2012-05-31
 Author: Michel Kuhlmann
 Maintainer: Michel Kuhlmann <michel.kuhlmann@tkconsult.ch>
-Imports: 
+Imports: whisker
 Description: Package providing utilities to do parameter estimation with `pest`
 License: GPL
 LazyLoad: yes

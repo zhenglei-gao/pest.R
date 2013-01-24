@@ -31,6 +31,4 @@ replaceParsInPstTmpl <-
          ,collapse = "\n")
     
     whisker.render(pst.tmpl, pst.repl.list)
-   #subParsInTmpl(repls = pst.repl.list ,tmpl  = pst.tmpl
-   )
 }
