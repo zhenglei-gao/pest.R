@@ -11,8 +11,8 @@ genObsString <-
     sapply(seq_len(nrow(x)),
           function(i) {
                 ti <-  # index of type 
-                    which(bsmnt_obs_type$type == as.character(x[i,3]))
-                group <- as.character(bsmnt_obs_type$group[ti])
+                    which(bsmnt_obs_type$par == as.character(x[i,3]))
+                group <- as.character(bsmnt_obs_type$name[ti])
               sprintf("%-15s%-10.3f%.3f%10s", x[i,1], x[i,2], weight[i], group)
           }
     )

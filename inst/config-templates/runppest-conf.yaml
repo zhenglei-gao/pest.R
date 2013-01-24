@@ -1,0 +1,48 @@
+git-rep: 
+### url of git-repository
+
+pest-file:
+### pest file to use
+
+default-host-config:    # valid for master and slaves
+    project-dir:
+    ### project directory; should also be top-level git directory
+    run-dir:
+    ### directory where runs are located; should be relativ to `project-dir` in
+    ### `master-` and `slave-host` you could ## overwrite that with a `run-dir`
+    ### entry (see below)
+    ppest-cmd : beopest64 # beopest64 on win ppest on *nix
+    
+default-slave-threads : 1
+### default threads on slave hosts to use
+
+last-run-master: false
+### should the final run be calculated on the `master-host`
+
+port: 4004
+### port to communicate over
+
+master-host:
+    <name>: 
+         ppest-cmd : ppest
+        #project-dir : 
+        #run-dir     : dir/to/run
+        #last-run    : true      # default is false
+### name of host; where the master should be located; if everything is default,
+### you could write eg. `master-host: tkc-u1`; if you have to specify additional
+### things use the notation above (eg master-host \n\t tkc-u1:).
+
+slave-hosts:
+    #foo:
+        #project-dir : /dir/to/project
+        #run-dir     : dir/to/run
+        #threads     : 2
+    #bar
+        #project-dir : /dir/to/project
+        #run-dir     : dir/to/run
+        #threads     : 2
+### provide a list with slave hosts; key is the computer-name, value the number
+### of threads to use in parallel; you could also provide a run-directory.
+### Could either be a atomic list (eg `[foo, bar]` or `- foo\n - bar)` with the
+### default-values or an association list (eg `foo:\n threads: 1\n`) with defined values
+

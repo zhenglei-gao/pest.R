@@ -74,10 +74,13 @@ pars.lines <-     # strings of "parameter-data" in pest-template
 #----------------------
 
 obs.lines <-      # strings of "observation-data" in pest-template
-    genObsString(as.data.frame(list(names = paste(tolower(obs.df[,1]), obs.df[,2], sep = "")
-                         ,  wses = obs.df[,3], type = rep('hydrograph', nrow(obs.df)))
-                         , stringsAsFactors = FALSE)
-               , weight = 1/obs.df[,4]
+    genObsString(
+       as.data.frame(
+         list(
+            names = paste(tolower(obs.df[,1]), obs.df[,2], sep = "")
+           ,wses = obs.df[,3], type = rep('hydrograph', nrow(obs.df)))
+           ,stringsAsFactors = FALSE)
+           ,weight = 1/obs.df[,4]
     )
 
 # Model input-output 

@@ -1,0 +1,24 @@
+case  :            # Case-name; name of pest file
+type  : 1d         # could be eihter `1d` or `2d`
+ppest : yes        # run pest in parallel with beopest?
+
+# Information on parameter-files
+par-tmpl   : friction-conf.tpl  # template of parameter-file
+par-esc    : $                  # escape character for parameter values
+par-mi     : friction-conf.yaml # model-input parameter-file
+par-init   : 29                 # initial value(s) of parameters
+par-bounds : [15, 60]           # Boundaries of friction
+
+# Observations and model-output
+marks:             # observed flood marks
+    mr: marks.dat
+
+hydrographs:       # observed hydrographs
+    hy: hydrograph.dat
+### provide for the last two items a hash with 
+###   - key with unique identifier
+###   - value with file-name of the hydrograph
+### For example:
+###   hydrograph_files :
+###      sh : ../../observations/hw_1999/sihlhoelzi.dat
+###      bw : ../../observations/hw_1999/blattwag.dat
