@@ -1,3 +1,12 @@
-type        read_fun        pre_str     name_sub              name_repl     ins_pre_line    group
-mark        read.table      *name*      ""                    ""            'l1 w w'        hwsp
-hydrograph  read.chrono     *time*      '(-|:|[[:space:]]+)'  ""            'l1 *;* *;*'    hydg
+# maps R-intern accessor to a parameter-name in genPestInput-config-file
+name    par
+case    case
+type    type
+ppest   ppest
+ptpl    par-tmpl
+pesc    par-esc
+pmi     par-mi
+pini    par-init
+mf      marks
+hnms    hydrographs
+pbound  par-bounds

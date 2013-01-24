@@ -9,7 +9,7 @@ replaceParsInPstTmpl <-
   ,  runsh          # character with command to run-model
 )
 {
-
+  require('basement', quietly = TRUE)
     pst.repl.list <- # Named list pest-par and  replacement string
         list(                  
              npar    = length(pars.lines)

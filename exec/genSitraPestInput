@@ -1,10 +1,8 @@
 #!/usr/bin/env Rscript
 #================================================================================
 # File:        genSitraPestInput    
-# Created:     2012-05-31
-# Last Change: Wednesday, 2012-06-06
 # Description: Generate input-files for `pest`-parameter-estimation
-# Argument:    sitra-`biv`-file
+# Argument:    sitra-`.bsi`-file
 # Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
 # Institution: TK Consult AG
 # Copyright:   GNU General Public Licence 
@@ -25,9 +23,6 @@ if ( !file.exists(bsi.file) )
     stop("Couldn't find the given .bsi-file: ", args[1], "!\n",
          "Usage: \n genSitraPestInput [<file.bsi>]")
 }
-
-#setwd('~/tmp/ohneriv/')
-#bsi.file <- 'sitra.bsi'
 
 require('pest', quietly = TRUE)
 

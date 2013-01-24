@@ -22,36 +22,54 @@ readSitraObs <-
     procTu <- proc_tu_function[[time_unit_line[1]]]
 
     obs.string <- paste(obs.lines[-seq(1,6)], collapse = "\n")
-    obs.points <- strsplit(obs.string, "\nPOTE\\s*")[[1]][-1]
+    obs.points <- strsplit(obs.string, "\n\\s*\n")[[1]][-1]
     obs.df <- 
     Reduce(
        rbind, 
        lapply(obs.points, function(x)
        {
-           point.lines.in <- strsplit(x, "\n")[[1]]
-           point.lines <- point.lines.in[point.lines.in != ""]
-           point.name <- 
-           {
-               if ( length(grep(" +", point.lines[1])) > 0 ) 
-               {  
-                   strsplit(point.lines[1], "[[:space:]]+")[[1]][1]
-               } else 
+         readPointData <-
+           function(x, skip)
+             {
+               d <- 
+                 read.table(text = x, skip = skip 
+                            , stringsAsFactor = F
+                            , col.names = c('Date', 'Ele', 'Q'))
+               d.tu <- 
+                 transform(d, Date = round(as.numeric(procTu(Date))))
+               with(d.tu, data.frame(Name = pname, Date = Date, Ele = Ele, Q = Q))
+             }
+         procPointWithNodes <-
+           function(x)
+             {
+                 s <- 
+                   scan(text = x, what = "character", nlines = 2, quiet = TRUE)
+                 nele <- as.numeric(s[length(s)])
+                 nds <- scan(text = x, skip = 2, nmax = nele, quiet = TRUE)
+                 n <- grep(nds[length(nds)], strsplit(x, "\n")[[1]]) 
+                 readPointData(x, skip = n+1)
+             }
+           header <-  # point-type
+             scan(text = x,  what = "character", nlines = 1, quiet = T)
+           ptype = header[1]
+           pname <- header[2]
+           readFuns <-
+             switch( 
+               ptype
+              ,"POTE" =
                {
-                   point.lines[1]
+                 readPointData(x, skip = 2)
                }
-           }
-
-           Reduce(
-              rbind,
-              lapply(point.lines[-c(1,2)], function(r)
-              {
-                  obs <- unlist(strsplit(r, " +"))[1:3]
-                  obs.name <- round(as.numeric(procTu(obs[1])))
-                  c(point.name, as.numeric(obs.name), as.numeric(obs[-1]))
-              }
-              )
-              , c(character(), numeric(), numeric()) 
-           )
+              ,"KNOT" =
+               {
+                 procPointWithNodes(x)
+               }
+              ,"LKNO" =
+               {
+                 procPointWithNodes(x)
+               }
+             , stop('Keyword ', ptype, ' not defined in .obs-file')
+               )
        }
        )
      , data.frame()
