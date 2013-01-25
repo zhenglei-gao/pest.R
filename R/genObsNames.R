@@ -25,6 +25,7 @@ genObsNames <-
   nms[i] <- sapply(nms[i], adaptName)
   j <-                                  # duplicated names
     duplicated(nms)
-  nms[j] <- sapply(nms[j], tempname)
+  if (sum(j) > 0 )
+    nms[j] <- sapply(nms[j], tempname)
   nms                      # ^ Returns a vector with observation-names
 }

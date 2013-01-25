@@ -30,9 +30,11 @@ cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)
 # Get observations
 #==================
 obs.df.all <- readSitraObs(cnf[2,1])
-obs.df <- obs.df.all[obs.df.all$Date < bsi.conf$run_time, ]
+obs.df <-         # exclude observation not lying in simulation domain
+  obs.df.all[obs.df.all$Date > 0 & obs.df.all$Date < bsi.conf$run_time, ]
 obs.df <- cbind(Id = genObsNames(obs.df[,1],obs.df[,2]), obs.df)
-obs.list <- with(obs.df, split(obs.df, Name))
+obs.list.all <- with(obs.df, split(obs.df, Name))
+obs.list <- obs.list.all[!as.logical(sapply(obs.list.all, nrow) == 0)]
 # Generate pest-instruction-files
 #=================================
 exit_st <-         # not used any further
@@ -85,7 +87,8 @@ obs.lines <-      # strings of "observation-data" in pest-template
 fmt_string <- "%-15s %-15s"
 mio.lines <-       # model-input-output lines
     c(sprintf(fmt_string, sub("csv$", "tpl", pars.file),  pars.file)
-      ,sapply(names(obs.list), function(x)
+      ,sapply(names(obs.list),
+              function(x)
               sprintf(fmt_string
                     , paste(x, ".ins", sep = "")
                     , paste(x, ".csv", sep = "")) 
