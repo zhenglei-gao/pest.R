@@ -8,23 +8,19 @@
 # Copyright:   GNU General Public Licence 
 #================================================================================
 args <- commandArgs(TRUE)
-if ( length(args) == 0 ) 
-{  
-    bsi.file <- 'sitra.bsi'
-} else if (  length(args) == 1) 
-{ 
-    bsi.file <- args[1]
-} else 
-{  
-    stop('Please give sitra-`.bsi`-file as argument! \n Usage: \n genSitraPestInput [<file.bsi>]')
-} 
+bsi.file <- 
+    switch(as.character(length(args))
+         , "0" = 'sitra.bsi'
+         , "1" = args[1]
+         , stop('Please give sitra-`.bsi`-file as argument! \n', 
+                ' Usage: \n genSitraPestInput [<file.bsi>]'))
+
 if ( !file.exists(bsi.file) ) 
-{  
-    stop("Couldn't find the given .bsi-file: ", args[1], "!\n",
-         "Usage: \n genSitraPestInput [<file.bsi>]")
-}
+  stop("Couldn't find the given .bsi-file: ", args[1], "!\n",
+       "Usage: \n genSitraPestInput [<file.bsi>]")
 
 require('pest', quietly = TRUE)
+require('whisker', quietly = TRUE)
 
 bsi.conf <- getBsiContents(bsi.file)
 
@@ -43,7 +39,7 @@ exit_st <-         # not used any further
 lapply(obs.list, function(x) 
 {
     cat(genSitraInsString(x[,1]) 
-      , file = paste(x[2,1], 'ins', sep = ".")
+      , file = paste(x[1,2], 'ins', sep = ".")
     ) 
     invisible()
 }
