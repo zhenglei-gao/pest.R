@@ -73,10 +73,11 @@ writeSitraTpl(pars.df.all, i = ppi,  file = sub('csv$', 'tpl', pars.file))
 ## Generate pest-control-file
 
 ## Process Parameters
-
+pars.gp <- levels(factor(tolower(pars.df$type)))
+pars.gp.lines <- genParsGpLines(pars.gp)
 
 pars.lines <-     # strings of "parameter-data" in pest-template
-    genParString(pars.df[,c('name', 'init', 'l_bound', 'u_bound')])
+    genParString(pars.df[,c('name', 'init', 'l_bound', 'u_bound', 'type')])
 
 ## Process observations
 
@@ -116,7 +117,8 @@ pi.lines <-
 ## Replace parameters in pest-template file
 pst.string <- 
     replaceParsInPstTmpl(
-      pars.lines
+      pars.gp.lines
+    , pars.lines
     , obs.lines
     , mio.lines 
     , 1

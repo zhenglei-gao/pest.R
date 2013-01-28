@@ -1,7 +1,8 @@
 replaceParsInPstTmpl <- 
     function
 (
-     pars.lines     # vector with parameter-lines
+     pars.gp
+  ,  pars.lines     # vector with parameter-lines
   ,  obs.lines      # vector with observation-lines
   ,  mio.lines      # model-input-output-lines
   ,  ntpl           # number of pest-template-files
@@ -15,18 +16,20 @@ replaceParsInPstTmpl <-
   join <- function(l, ...) paste(l, collapse = "\n", ...)
     pst.repl.list <- # Named list pest-par and  replacement string
         list(                  
-             npar    = length(pars.lines)
+             npargp  = length(pars.gp)
+            ,npar    = length(pars.lines)
             ,nobs    = length(obs.lines)
             ,nobsgp  = length(obsgp)
             ,ntpl    = ntpl
             ,nins    = nins
             ,npi     = length(pi)
+            ,pargp   = join(pars.gp)
             ,pardata = join(pars.lines)
             ,obsgp   = join(obsgp)
             ,obsdata = join(obs.lines)
             ,runsh   = runsh
             ,mio     = join(join(mio.lines), sep = "")
-            ,pi      = join("* prior information", join(pi))
+            ,pi      = join(c("* prior information", join(pi)))
         )
     
     pst.tmpl <-           # read pest-template
