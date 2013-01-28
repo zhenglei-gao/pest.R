@@ -1,4 +1,4 @@
-genPestInput.cli <- 
+genBsmntBcPestInput.cli <- 
 function        # process command-arguments of `genPestInput`
 ### Returns command-line options; or prints information to stdout
 (
@@ -22,8 +22,8 @@ function        # process command-arguments of `genPestInput`
     }
 
     if ( !is.null(opt[["print-cnf-tmpl"]]) )    {  #  Print config-template 
-        cat(paste(readLines(system.file("config-templates", "genPestInput-conf.yaml",
-                                        package = "basement")), collapse = "\n"))
+        cat(paste(readLines(system.file("config-templates", "genBsmntBcPestInput-conf.yaml",
+                                        package = "pest")), collapse = "\n"))
         q(status=0)
     }
     return(opt)

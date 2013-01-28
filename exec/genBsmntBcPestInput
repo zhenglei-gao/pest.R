@@ -1,20 +1,13 @@
 #!/usr/bin/env Rscript
 
-# Program to generate input files for pest 
-### while working on a BaseChain-Model.  You have to provide a configuration
-### file and define some parameters in a  .tpl-file.
-
+# Program to generate input files for pest to calibrate a basement-model
 
 # Process command line options and arguments
-require('basement', quietly = TRUE)
-require('pest', quietly = TRUE)
-opt <- genPestInput.cli(commandArgs(TRUE))
-#--------------------------------------------------------------------------------
-#setwd("~/Projekte/Sihl1d/calibration/runs/hw_2005_hq/")    # Development & Debugging
-#opt <- list(config = ".gpi-conf.yaml")
-#--------------------------------------------------------------------------------
-
 require('yaml', quietly = TRUE)
+require('pest', quietly = TRUE)
+
+opt <- genBsmntBcPestInput.cli(commandArgs(TRUE))
+
 cnf.yaml <- yaml.load_file(opt$config)
 data(data.genpestinput_cnf, package = "basement")
 cnf <-             # configuration with normalized names ; 
