@@ -4,7 +4,7 @@ readSitraPars <-
     file           # file to read-in
 )
 {
-    pars.df <- read.csv2(file, stringsAsFactor = FALSE)
+    pars.df <- read.csv2(file, stringsAsFactor = FALSE, header = FALSE)
     names(pars.df) <- 
         c('type', 'zone', 'element', 'init', 'sd', 'obs', 
           'l_bound', 'u_bound', 'fixed', 'name')
