@@ -1,28 +1,27 @@
 #!/usr/bin/env Rscript
-
-# Program to generate input files for pest to calibrate a basement-model
+# | Program to generate input files for pest to calibrate a
+# | basement-model
 
 # Process command line options and arguments
 require('yaml', quietly = TRUE)
 require('pest', quietly = TRUE)
 
-opt <- genBsmntBcPestInput.cli(commandArgs(TRUE))
-
-cnf.yaml <- yaml.load_file(opt$config)
-data(data.genpestinput_cnf, package = "basement")
-cnf <-             # configuration with normalized names ; 
-    ### look names up under `data.genpestinput_cnf`
-    normalizeCnfNames(cnf = cnf.yaml
-                     ,tt  = data.genpestinput_cnf
+opt <- 
+  genBsmntBcPestInput.cli(
+    commandArgs(TRUE), 
+    system.file("config-templates", "genBsmntPestInput-conf.yaml"
+               , package = "pest")
     )
+
+cnf <- yaml.load_file(opt$config)
 
 # Read and generate observation data
 #===================================
 
 obs.marks.summary <- 
-     if (!is.null(cnf$mf)) { summarizeObs(cnf$mf, "mark")} else {NULL} 
+     if (!is.null(cnf$mf))     summarizeObs(cnf$mf, "mark") else NULL 
 obs.hydg.summary <-  
-     if (!is.null(cnf$hnms)) { summarizeObs(cnf$hnms, "hydrograph")} else {NULL} 
+     if (!is.null(cnf$hnms))   summarizeObs(cnf$hnms, "hydrograph") else NULL 
 
 obs.summary <-     # summary of observations
     rbind(obs.marks.summary, obs.hydg.summary)
@@ -109,16 +108,17 @@ cat(pst.string, file = paste(cnf$case, ".pst", sep = ""))
 system(paste("sed '/CASE/s/__case__/", cnf$case, "/' <",
              system.file("config-templates"
                     , paste('run-ppest', cnf$type, sep = "-")
-                    , package = "basement")
+                    , package = "pest")
           , '> run', sep = "")
 )
 system('chmod +x run')
-
-q(status = 0)
-# Programs generates the follwing files
+message("
+# Programs generated the follwing files
 #     * pest-control-file (.pst)
 #     * pest-instruction-files (.ins) for each given marks and hydrograph-file
 #     * run shell script
+"
+q(status = 0)
 
 # End of File ===================================================================
 # vim: set ft=r:

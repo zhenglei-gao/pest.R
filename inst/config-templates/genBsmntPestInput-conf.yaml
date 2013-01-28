@@ -1,19 +1,19 @@
 case  :            # Case-name; name of pest file
-type  : 1d         # could be eihter `1d` or `2d`
+type  :            # {1d,2d}: BaseChain or BasePlane could be eihter `1d` or `2d`
 ppest : yes        # run pest in parallel with beopest?
 
 # Information on parameter-files
-par-tmpl   : friction-conf.tpl  # template of parameter-file
-par-esc    : $                  # escape character for parameter values
-par-mi     : friction-conf.yaml # model-input parameter-file
-par-init   : 29                 # initial value(s) of parameters
-par-bounds : [15, 60]           # Boundaries of friction
+ptpl   :                    # template of parameter-file
+pesc    : $                  # escape character for parameter values
+pmi     :                    # model-input parameter-file
+p-ini   : 29                 # initial value(s) of parameters eg []
+pbound : [15, 60]           # Boundaries of friction
 
 # Observations and model-output
-marks:             # observed flood marks
+mf:             # observed flood marks
     mr: marks.dat
 
-hydrographs:       # observed hydrographs
+hnms:       # observed hydrographs
     hy: hydrograph.dat
 ### provide for the last two items a hash with 
 ###   - key with unique identifier

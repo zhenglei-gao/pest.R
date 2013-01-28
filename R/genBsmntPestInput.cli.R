@@ -1,9 +1,9 @@
 genBsmntBcPestInput.cli <- 
-function        # process command-arguments of `genPestInput`
-### Returns command-line options; or prints information to stdout
+function        # ^ Process command-arguments of `genPestInput`
 (
- opt    # command-line options
- )
+   opt    # ^ command-line options
+  ,tmpl   # ^ file-path of template
+)
 {
     require('getopt', quietly = TRUE)
     opt_spec <- 
@@ -22,9 +22,8 @@ function        # process command-arguments of `genPestInput`
     }
 
     if ( !is.null(opt[["print-cnf-tmpl"]]) )    {  #  Print config-template 
-        cat(paste(readLines(system.file("config-templates", "genBsmntBcPestInput-conf.yaml",
-                                        package = "pest")), collapse = "\n"))
+        cat(paste(readLines(tmpl), collapse = "\n"))
         q(status=0)
     }
-    return(opt)
+    return(opt) # ^ Returns command-line options; or prints information to stdout
 }
