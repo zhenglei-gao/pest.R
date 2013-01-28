@@ -94,7 +94,7 @@ obs.lines <-      # strings of "observation-data" in pest-template
     )
 
 ## Model input-output 
-fmt_string <- "%-15s %-15s"
+fmt_string <- "%-25s %-25s"
 mio.lines <-       # model-input-output lines
     c(sprintf(fmt_string, sub("csv$", "tpl", pars.file),  pars.file)
       ,sapply(names(obs.list),

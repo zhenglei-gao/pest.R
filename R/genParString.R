@@ -8,7 +8,7 @@ genParString <-
 {
     apply(x, 1,    # String with parameter-data line
           function(e) {
-              sprintf("%-15s   log   factor    %15s  %15s  %15s    %s   1.0   0.0"
+              sprintf("%-15s   log   factor    %15s  %15s  %15s    %15s   1.0   0.0"
                     , tolower(e[1]), e[2],  e[3], e[4], tolower(e[5]))
           }
     )
