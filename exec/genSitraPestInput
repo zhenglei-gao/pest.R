@@ -21,14 +21,26 @@ if ( !file.exists(bsi.file) )
 
 require('pest', quietly = TRUE)
 require('whisker', quietly = TRUE)
+readError <- function(f) stop("Couldn't read file ", f)
 
-bsi.conf <- getBsiContents(bsi.file)
+bsi.conf <-
+  tryCatch(
+    getBsiContents(bsi.file)
+   ,error = function(e) readError(bsi.file))
 
-cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)
+cnf <-
+    tryCatch(
+      read.table(bsi.conf$biv, stringsAsFactor = FALSE)
+     ,error = function(e) readError(bsi.conf$biv))
 
 
 ## Get observations
-obs.df.all <- readSitraObs(cnf[2,1])
+obs.df.all <-
+  tryCatch(
+    readSitraObs(cnf[2,1])
+   ,error = function(e)readError(cnf[2,1])
+  )
+
 obs.df <-         # exclude observation not lying in simulation domain
   obs.df.all[obs.df.all$Date > 0 & obs.df.all$Date < bsi.conf$run_time, ]
 obs.df <- cbind(Id = genObsNames(obs.df[,1],obs.df[,2]), obs.df)
@@ -48,7 +60,10 @@ lapply(obs.list, function(x)
 
 ## Transform parameter-file into a tpl-file
 pars.file <- cnf[3,1]
-pars.df.all <- readSitraPars(pars.file)
+pars.df.all <-
+  tryCatch(
+     readSitraPars(pars.file)
+    ,error = function (e) readError(pars.file))
 
 ppi <-         # indices of parameters to estimate
     which(pars.df.all$fixed == 0)
@@ -59,13 +74,12 @@ writeSitraTpl(pars.df.all, i = ppi,  file = sub('csv$', 'tpl', pars.file))
 
 ## Process Parameters
 
-pars.list <- list(names = pars.df$name, values = pars.df$init)
 
 pars.lines <-     # strings of "parameter-data" in pest-template
-    genParString(as.data.frame(pars.list), bounds = c(1e-20, 1) )
+    genParString(pars.df[,c('name', 'init', 'l_bound', 'u_bound')])
 
-# Process observations
-#----------------------
+## Process observations
+
 obs.lines <-      # strings of "observation-data" in pest-template
     genSitraObsString(
        as.data.frame(
@@ -90,9 +104,16 @@ mio.lines <-       # model-input-output lines
        )
     )
 
+## Prior Information
+pi.lines <-
+ apply(pars.df, 1, function(r)
+  {
+    sprintf("pi%-15s 1.0 * %-15s = %10s 1 prinf" ,gsub(" ", "", tolower(r[10]))
+            , tolower(r[10]), r[6])
+  }
+  ) 
 
-# Replace parameters in pest-template file
-#------------------------------------------
+## Replace parameters in pest-template file
 pst.string <- 
     replaceParsInPstTmpl(
       pars.lines
@@ -102,6 +123,7 @@ pst.string <-
     , length(obs.list)
     , 'Sitra.exe -return'
     , tolower(levels(obs.df$Type))
+    , pi.lines 
 ) 
 
 cat(pst.string, file = sub("biv$", "pst", bsi.conf$biv))

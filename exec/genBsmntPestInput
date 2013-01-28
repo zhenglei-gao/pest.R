@@ -83,7 +83,7 @@ pars.list$values <-
     }
 }
 pars.lines <-     # strings of "parameter-data" in pest-template
-    genParString(as.data.frame(pars.list), bounds = cnf$pbound )
+    genParString(cbind(as.data.frame(pars.list), cnf$pbound[1], cnf$pbound[2]))
 
 # Process observations
 #----------------------
