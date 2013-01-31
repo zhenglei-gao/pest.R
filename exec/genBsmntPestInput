@@ -9,8 +9,7 @@ require('pest', quietly = TRUE)
 opt <- 
   genBsmntBcPestInput.cli(
     commandArgs(TRUE), 
-    system.file("config-templates", "genBsmntPestInput-conf.yaml"
-               , package = "pest")
+    system.file("config-templates", "genBsmntPestInput-conf.yaml" , package = "pest")
     )
 
 cnf <- yaml.load_file(opt$config)
@@ -38,7 +37,7 @@ obs.df <-          # observations with names, values and type
 # Produce strings
 #-----------------
 ins.string <-         # instruction strings per given file
-    lapply(obs.df.list, function(x) 
+    lapply(obs.df.list, function(x)
            genInsString(names = as.character(x$names), type  = levels(x$type)) )
 
 # Write ins-files
@@ -75,7 +74,7 @@ pars.list$values <-
     }
 }
 pars.lines <-     # strings of "parameter-data" in pest-template
-    genParString(cbind(as.data.frame(pars.list), cnf$pbound[1], cnf$pbound[2]))
+    genParString(cbind(as.data.frame(pars.list), cnf$pbound[1], cnf$pbound[2], "fr"))
 
 # Process observations
 #----------------------
@@ -100,8 +99,15 @@ mio.lines <-       # model-input-output lines
 # Replace parameters in pest-template file
 #------------------------------------------
 pst.string <- 
-    replaceParsInPstTmpl(pars.lines, obs.lines, mio.lines 
-                       , 1, length(cnf$hnms) + length(cnf$mf), 'sh run') 
+  replaceParsInPstTmpl(
+      pars.gp = "fr"
+     ,pars.lines = pars.lines
+     ,obs.lines =  obs.lines
+     ,mio.lines = mio.lines 
+     ,ntpl = 1
+    , nins = length(cnf$hnms) + length(cnf$mf)
+    , runsh = 'sh run'
+    )
 cat(pst.string, file = paste(cnf$case, ".pst", sep = ""))
 
 # Generate a run-shell-file 
@@ -118,6 +124,7 @@ message("
 #     * pest-instruction-files (.ins) for each given marks and hydrograph-file
 #     * run shell script
 "
+)
 q(status = 0)
 
 # End of File ===================================================================

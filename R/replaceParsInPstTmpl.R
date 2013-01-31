@@ -8,7 +8,7 @@ replaceParsInPstTmpl <-
   ,  ntpl           # number of pest-template-files
   ,  nins           # number of instruction-files
   ,  runsh          # character with command to run-model
-  ,  obsgp = c("hwsp", "hydrograph")    # observation-groups
+  ,  obsgp = c("mark", "hydrograph")    # observation-groups
   ,  pi = NULL      # prior information
 )
 {

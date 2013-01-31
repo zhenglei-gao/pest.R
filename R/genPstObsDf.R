@@ -13,11 +13,11 @@ genPstObsDf <-
     obs.list <- 
         apply(x, 1, 
                function(e){
-                   # Assign read according to type, see `obs_type`
+                   # TODO: This needs update after rewriting
                    read_fun <- as.character(bsmnt_obs_type$read_fun[bsmnt_obs_type$type == e[3]])
                    read <-  eval(parse(text = read_fun))
                    # Read data in
-                   d <- read(e[1], header = TRUE)
+                   d <- read(e[1])
                    # Generate uniqute names
                    sub_pat <-  as.character(bsmnt_obs_type$name_sub[bsmnt_obs_type$type == e[3]])
                    odf        <- list()

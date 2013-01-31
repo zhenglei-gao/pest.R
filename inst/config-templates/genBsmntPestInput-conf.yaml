@@ -4,9 +4,9 @@ ppest : yes        # run pest in parallel with beopest?
 
 # Information on parameter-files
 ptpl   :                    # template of parameter-file
-pesc    : $                  # escape character for parameter values
-pmi     :                    # model-input parameter-file
-p-ini   : 29                 # initial value(s) of parameters eg []
+pesc    : $                 # escape character for parameter values
+pmi     :                   # model-input parameter-file
+pini   : 29                 # initial value(s) of parameters eg []
 pbound : [15, 60]           # Boundaries of friction
 
 # Observations and model-output
