@@ -18,11 +18,12 @@ genObsNames <-
 
       }
   tempname <- function(x) basename(tempfile("", "", ""))
-  nms <- paste(x,y, sep = "")
+  nms <- paste(as.character(x),as.character(y), sep = "")
   nms.l <-  sapply(nms, nchar)
   i <-                                  # to long names
     as.logical(nms.l > 15)
-  nms[i] <- sapply(nms[i], adaptName)
+  if (any(i))
+    nms[i] <- sapply(nms[i], adaptName)
   j <-                                  # duplicated names
     duplicated(nms)
   if (sum(j) > 0 )

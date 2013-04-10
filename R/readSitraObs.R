@@ -47,8 +47,8 @@ readSitraObs <-
 
     procTu <- proc_tu_function[[time_unit_line[1]]]
 
-    obs.string <- paste(obs.lines[-seq(1,6)], collapse = "\n")
-    obs.points <- strsplit(obs.string, "\n\\s*\n")[[1]][-1]
+    obs.string <- paste(obs.lines[-seq(1,7)], collapse = "\n")
+    obs.points <- strsplit(obs.string, "\n\\s*\n")[[1]]
   do.call(
     rbind, 
     lapply(obs.points, function(x)
@@ -64,7 +64,7 @@ readSitraObs <-
                ,"POTE" = readPointData(x, skip = 2, pname, ptype)
                ,"KNOT" = procPointWithNodes(x, pname, ptype)
                ,"LKNO" = procPointWithNodes(x, pname, ptype)
-               , stop('Keyword ', ptype, ' not defined in .obs-file')
+               , stop('Keyword ', ptype, ' in .obs-file currently not supported')
                )
            }
            )

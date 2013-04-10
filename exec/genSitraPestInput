@@ -41,9 +41,14 @@ obs.df.all <-
    ,error = function(e)readError(cnf[2,1])
   )
 
-obs.df <-         # exclude observation not lying in simulation domain
+obs.df. <-         # exclude observations not lying in simulation domain
   obs.df.all[obs.df.all$Date > 0 & obs.df.all$Date < bsi.conf$run_time, ]
-obs.df <- cbind(Id = genObsNames(obs.df[,1],obs.df[,2]), obs.df)
+obs.df <-
+  cbind(
+    Id = genObsNames(
+       x = obs.df.[,1]
+     , y = obs.df.[,2])
+   ,obs.df.)
 obs.list.all <- with(obs.df, split(obs.df, Name))
 obs.list <- obs.list.all[!as.logical(sapply(obs.list.all, nrow) == 0)]
 
@@ -61,9 +66,7 @@ lapply(obs.list, function(x)
 ## Transform parameter-file into a tpl-file
 pars.file <- cnf[3,1]
 pars.df.all <-
-  tryCatch(
      readSitraPars(pars.file)
-    ,error = function (e) readError(pars.file))
 
 ppi <-         # indices of parameters to estimate
     which(pars.df.all$fixed == 0)
