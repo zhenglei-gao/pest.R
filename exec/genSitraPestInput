@@ -110,12 +110,15 @@ mio.lines <-       # model-input-output lines
 
 ## Prior Information
 pi.lines <-
- apply(pars.df, 1, function(r)
+ as.character(apply(pars.df, 1, function(r)
   {
-    sprintf("pi%-15s 1.0 * %-15s = %10s 1 prinf" ,gsub(" ", "", tolower(r[10]))
-            , tolower(r[10]), r[6])
+    sprintf("pi%-15s 1.0 * log(%s) = %10s 1 pr%s",
+            gsub(" ", "", tolower(r[10]))
+            , tolower(r[10])
+            , as.character(round(log10(as.numeric(r[6])), digits = 3))
+            , tolower(r[1]))
   }
-  ) 
+  )) 
 
 ## Replace parameters in pest-template file
 pst.string <- 
@@ -127,7 +130,7 @@ pst.string <-
     , 1
     , length(obs.list)
     , 'Sitra.exe -return'
-    , tolower(levels(obs.df$Type))
+    , c(tolower(levels(obs.df$Type)), paste("pr", tolower(levels(factor(pars.df$type))), sep = ""))
     , pi.lines 
 ) 
 
