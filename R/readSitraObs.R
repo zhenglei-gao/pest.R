@@ -9,8 +9,8 @@ readSitraObs <-
       {
         d <- 
           read.table(text = x, skip = skip 
-                     , stringsAsFactor = F
-                     , col.names = c('Date', 'Ele', 'Q'))
+                   , stringsAsFactor = F
+                   , col.names = c('Date', 'Ele', 'Q'))
         d.tu <- 
           transform(d, Date = round(as.numeric(procTu(Date))))
         with(d.tu,
@@ -32,11 +32,11 @@ readSitraObs <-
       }
   proc_tu_function <-  # functions how to process time-units
     list(
-      'BEZUGSDATUM' =  function(d)
+      'BEZUGSDATUM' =  function(d, units = "day")
       {
         asDate <- function(st) 
           as.POSIXct(strptime(st, format = "%d.%m.%Y"))
-        difftime(asDate(d), asDate(time_unit_line[2])) 
+        difftime(asDate(d), asDate(time_unit_line[2]), units = units) 
       }
       ,'ZEITEINHEIT' =  function(d)
       d
@@ -55,10 +55,8 @@ readSitraObs <-
            {
              header <-  # point-type
                scan(text = x,  what = "character", nlines = 1, quiet = T)
-             ptype =
-               header[1]
-             pname <-
-               header[2]
+             ptype <- header[1]
+             pname <- header[2]
              switch(
                ptype
                ,"POTE" = readPointData(x, skip = 2, pname, ptype)
