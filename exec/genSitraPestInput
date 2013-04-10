@@ -42,7 +42,7 @@ obs.df.all <-
   )
 
 obs.df. <-         # exclude observations not lying in simulation domain
-  obs.df.all[(obs.df.all$Date >= 0) & (obs.df.all$Date < bsi.conf$run_time), ]
+  obs.df.all[(obs.df.all$Date >= 0) & (obs.df.all$Date <= bsi.conf$run_time), ]
 obs.df <-
   cbind(
     Id = genObsNames(

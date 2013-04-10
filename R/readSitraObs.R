@@ -28,7 +28,7 @@ readSitraObs <-
         nele <- as.numeric(s[length(s)])
         nds <- scan(text = x, skip = 2, nmax = nele, quiet = TRUE)
         n <- grep(nds[length(nds)], strsplit(x, "\n")[[1]]) 
-        readPointData(x, skip = n+1, pname, ptype)
+        readPointData(x, skip = n, pname, ptype)
       }
   proc_tu_function <-  # functions how to process time-units
     list(
