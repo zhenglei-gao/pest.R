@@ -42,7 +42,7 @@ obs.df.all <-
   )
 
 obs.df. <-         # exclude observations not lying in simulation domain
-  obs.df.all[(obs.df.all$Date > 0) & (obs.df.all$Date < bsi.conf$run_time), ]
+  obs.df.all[(obs.df.all$Date >= 0) & (obs.df.all$Date < bsi.conf$run_time), ]
 obs.df <-
   cbind(
     Id = genObsNames(
@@ -112,11 +112,12 @@ mio.lines <-       # model-input-output lines
 pi.lines <-
  as.character(apply(pars.df, 1, function(r)
   {
-    sprintf("pi%-15s 1.0 * log(%s) = %10s 1 pr%s",
+    sprintf("pi%-15s 1.0 * log(%s) = %10s %s pr%s",
             gsub(" ", "", tolower(r[10]))
-            , tolower(r[10])
-            , as.character(round(log10(as.numeric(r[6])), digits = 3))
-            , tolower(r[1]))
+          , tolower(r[10])
+          , as.character(round(log10(as.numeric(r[6])), digits = 3))
+          , as.character(round(1/(as.numeric(r[5])), digits = 3))
+          , tolower(r[1]))
   }
   )) 
 
