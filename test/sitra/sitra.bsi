@@ -1,0 +1,18 @@
+out.s           # Ausgabedatei
+0               # ausf. Protokoll (1-Ja,0-Nein)
+1 0             # Gleichungsloeser P/U (1-iterativ,0-direkt)
+0 0             # Kontrollinienber. (1-Ja,0-Nein), IMITTEL
+0 0             # Peclet/Courantzahlen, K-Werte aus EICHEN (1-Ja,0-Nein)
+STROEMUNG+INVERS inv.biv #  
+1               # Iter. der Maechtigkeit (1-Ja,0-Nein)
+0 0 0           # gleiche Konz., dichteabh. Rech., p oder h (1-Ja,0-Nein)
+1  1.00000      # Anz. Iterationsschritte, Daempfungsfak.
+2 0             # Stroemung/Transport stat./0 inst/1 inst.+gesp./unges./2
+1 0             # Start. Pote/Konz aus ASAT(3) null(2) EICH/AKON(1) =0(0)
+kalib.inst # inst. Eingabedatei
+0               # Warmstart mit null-Datei (1-Ja,0-Nein)
+1 1.000000 3 1  # Zeitschr. 0-aus Datei + Faktor, 1-Zeitschr.+ZE, Zeitschrittverfeinerung für Transport
+0 0 0 0 0 0 0 0 # inst.RBG POTE,KNOT,FLAE,KONZ,1KON,VORF,EFLA ,iberg
+366             # Anzahl Zeitschritte
+0               # Absp. fuer evt. Fort. der inst. Rechnung? (1-Ja,0-Nein)
+0 1             # 0-alle n ZS, 1-n ZS, 2-n Knoten

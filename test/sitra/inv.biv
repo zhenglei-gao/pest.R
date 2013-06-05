@@ -1,0 +1,7 @@
+out.inv         # Ausgabedatei fuer inversen Lauf
+observations.obs   # Datei mit Beobachtungsdaten
+parameters.csv # Datei mit Parameterdaten
+ 0              # Levenberg-Marquard
+0     # Anzahl Iterationen
+KWER 1 1        # Interpolationsflags fuer KWER-Daten
+SPEI 1 1        # Interpolationsflags fuer KSPE-Daten
