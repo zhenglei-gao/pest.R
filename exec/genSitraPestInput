@@ -71,7 +71,12 @@ pars.df.all <-
 ppi <-         # indices of parameters to estimate
     which(pars.df.all$fixed == 0)
 pars.df <- pars.df.all[ppi,]
-writeSitraTpl(pars.df.all, i = ppi,  file = sub('csv$', 'tpl', pars.file))
+
+writeSitraTpl(
+   pars.df = pars.df.all
+ , i       = ppi
+ , file    = sub('csv$', 'tpl', pars.file)
+)
 
 ## Generate pest-control-file
 

@@ -9,6 +9,6 @@ writeSitraTpl <-
 {
     pars.df[i,'init'] <- paste("$", tolower(pars.df[i,'name']), "$", sep = "")
     cat("ptf $\n", file = file)
-    write.table(pars.df, file = file, col.names = FALSE, sep = "; ", 
+    write.table(pars.df, file = file, col.names = FALSE, sep = ";", 
                 row.names = FALSE, quote = FALSE, append = TRUE)
 }
