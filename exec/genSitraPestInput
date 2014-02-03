@@ -1,45 +1,33 @@
 #!/usr/bin/env Rscript
 #================================================================================
-# File:        genSitraPestInput    
+# File:        genSitraPestInput
 # Description: Generate input-files for `pest`-parameter-estimation
 # Argument:    sitra-`.bsi`-file
 # Author:      Michel Kuhlmann (kum), <kum@tkconsult.ch>
 # Institution: TK Consult AG
-# Copyright:   GNU General Public Licence 
+# Copyright:   GNU General Public Licence
 #================================================================================
 args <- commandArgs(TRUE)
-bsi.file <- 
+bsi.file <-
     switch(as.character(length(args))
          , "0" = 'sitra.bsi'
          , "1" = args[1]
-         , stop('Please give sitra-`.bsi`-file as argument! \n', 
+         , stop('Please give sitra-`.bsi`-file as argument! \n',
                 ' Usage: \n genSitraPestInput [<file.bsi>]'))
 
-if ( !file.exists(bsi.file) ) 
+if ( !file.exists(bsi.file) )
   stop("Couldn't find the given .bsi-file: ", args[1], "!\n",
        "Usage: \n genSitraPestInput [<file.bsi>]")
 
 require('pest', quietly = TRUE)
 require('whisker', quietly = TRUE)
-readError <- function(f) stop("Couldn't read file ", f)
 
-bsi.conf <-
-  tryCatch(
-    getBsiContents(bsi.file)
-   ,error = function(e) readError(bsi.file))
-
-cnf <-
-    tryCatch(
-      read.table(bsi.conf$biv, stringsAsFactor = FALSE)
-     ,error = function(e) readError(bsi.conf$biv))
+bsi.conf <- getBsiContents(bsi.file)
+cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)
 
 
 ## Get observations
-obs.df.all <-
-  tryCatch(
-    readSitraObs(cnf[2,1])
-   ,error = function(e)readError(cnf[2,1])
-  )
+obs.df.all <- readSitraObs(cnf[2,1])
 
 obs.df. <-         # exclude observations not lying in simulation domain
   obs.df.all[(obs.df.all$Date >= 0) & (obs.df.all$Date < bsi.conf$run_time), ]
@@ -54,11 +42,11 @@ obs.list <- obs.list.all[!as.logical(sapply(obs.list.all, nrow) == 0)]
 
 ## Generate pest-instruction-files
 exit_st <-         # not used any further
-lapply(obs.list, function(x) 
+lapply(obs.list, function(x)
 {
-    cat(genSitraInsString(x[,1]) 
+    cat(genSitraInsString(x[,1])
       , file = paste(x[1,2], 'ins', sep = ".")
-    ) 
+    )
     invisible()
 }
 )
@@ -93,7 +81,7 @@ obs.lines <-      # strings of "observation-data" in pest-template
     genSitraObsString(
        as.data.frame(
          list(
-            names = obs.df[,1] 
+            names = obs.df[,1]
            ,wses = obs.df[,4]
            ,weight = 1/obs.df[,5]
            ,type = tolower(obs.df[,6]))
@@ -109,7 +97,7 @@ mio.lines <-       # model-input-output lines
               function(x)
               sprintf(fmt_string
                     , paste(x, ".ins", sep = "")
-                    , paste(x, ".csv", sep = "")) 
+                    , paste(x, ".csv", sep = ""))
        )
     )
 
@@ -124,21 +112,21 @@ pi.lines <-
           , as.character(round(1/(as.numeric(r[5])), digits = 3))
           , tolower(r[1]))
   }
-  )) 
+  ))
 
 ## Replace parameters in pest-template file
-pst.string <- 
+pst.string <-
     replaceParsInPstTmpl(
       pars.gp.lines
     , pars.lines
     , obs.lines
-    , mio.lines 
+    , mio.lines
     , 1
     , length(obs.list)
     , 'Sitra.exe -return'
     , c(tolower(levels(obs.df$Type)), paste("pr", tolower(levels(factor(pars.df$type))), sep = ""))
-    , pi.lines 
-) 
+    , pi.lines
+)
 
 cat(pst.string, file = sub("biv$", "pst", bsi.conf$biv))
 
