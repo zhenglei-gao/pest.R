@@ -12,7 +12,7 @@ replaceParsInPstTmpl <-
   ,  pi = NULL      # prior information
 )
 {
-  require('whisker', quietly = TRUE)
+  require('template', quietly = TRUE)
   join <- function(l, ...) paste(l, collapse = "\n", ...)
     pst.repl.list <- # Named list pest-par and  replacement string
         list(                  
@@ -37,5 +37,5 @@ replaceParsInPstTmpl <-
           readLines(system.file("config-templates", "pest.pst", package = "pest"))
          ,collapse = "\n")
     
-    whisker.render(pst.tmpl, pst.repl.list)
+    render(pst.tmpl, pst.repl.list)
 }

@@ -20,7 +20,6 @@ if ( !file.exists(bsi.file) )
        "Usage: \n genSitraPestInput [<file.bsi>]")
 
 require('pest', quietly = TRUE)
-require('whisker', quietly = TRUE)
 
 bsi.conf <- getBsiContents(bsi.file)
 cnf <- read.table(bsi.conf$biv, stringsAsFactor = FALSE)

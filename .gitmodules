@@ -4,3 +4,6 @@
 [submodule "inst/wiki"]
 	path = inst/wiki
 	url = https://github.com/michelk/r-pest.wiki.git
+[submodule "deps/template"]
+	path = deps/template
+	url = https://github.com/michelk/template.R.git
