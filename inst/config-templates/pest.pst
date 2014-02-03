@@ -1,24 +1,24 @@
 pcf
 * control data
 norestart estimation
-{{npar}} {{nobs}} {{npargp}} {{npi}} {{nobsgp}}
-{{ntpl}} {{nins}} single point 1 0 0
+{{{npar}}} {{{nobs}}} {{{npargp}}} {{{npi}}} {{{nobsgp}}}
+{{{ntpl}}} {{{nins}}} single point 1 0 0
 5.0 2.0 0.4 0.03 10
 3.0 3.0 1.0e-3
 .1
 30 .01 3 3 .01 3
 1 1 1
 * parameter groups
-{{pargp}}
+{{{pargp}}}
 * parameter data
-{{pardata}}
+{{{pardata}}}
 * observation groups
-{{obsgp}}
+{{{obsgp}}}
 * observation data
-{{obsdata}}
+{{{obsdata}}}
 * model command line
-{{runsh}}
+{{{runsh}}}
 * model input/output
-{{mio}}
-{{pi}}
+{{{mio}}}
+{{{pi}}}
 
