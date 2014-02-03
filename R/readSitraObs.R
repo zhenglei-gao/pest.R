@@ -10,7 +10,7 @@ readSitraObs <-
             d <-
                 read.table(text = x, skip = skip
                            , stringsAsFactor = F
-                           , col.names = c('Date', 'Ele', 'Q'), comment.char = '!')
+                           , col.names = c('Date', 'Ele', 'Q'))
             d.tu <-
                 transform(d, Date = round(as.numeric(procTu(Date))))
             with(d.tu,
