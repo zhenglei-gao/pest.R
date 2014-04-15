@@ -8,6 +8,13 @@
 # Copyright:   GNU General Public Licence
 #================================================================================
 args <- commandArgs(TRUE)
+if (args[1] %in% c('-h', '--help'))
+{
+    message(
+        "Create input-files for PEST-Parameter ESTimation\n",
+        "Usage: genSitraPestInput [sitra.bsi]"
+            )
+}
 bsi.file <-
     switch(as.character(length(args))
          , "0" = 'sitra.bsi'
